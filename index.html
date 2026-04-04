@@ -1,0 +1,3140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Millo - Complete Integrated Platform</title>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://js.stripe.com/v3/"></script>
+
+<style>
+    :root {
+      --primary-gold: #d4af37;
+      --primary-gold-dark: #b8972e;
+      --bg-primary: #000;
+      --bg-secondary: #1a1a1a;
+      --bg-tertiary: #2a2a2a;
+      --text-primary: #fff;
+      --text-secondary: #d1d5db;
+      --text-accent: #d4af37;
+      --border-primary: #333;
+      --border-secondary: #444;
+      --success-green: #10b981;
+      --warning-orange: #f59e0b;
+      --danger-red: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .font-display {
+      font-family: 'Playfair Display', serif;
+    }
+
+    .gradient-gold {
+      background: linear-gradient(135deg, #d4af37 0%, #f7dc6f 50%, #d4af37 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .gradient-bg {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 50%, #1a1a1a 100%);
+    }
+
+    .glass-effect {
+      backdrop-filter: blur(10px);
+      background: rgba(26, 26, 26, 0.8);
+      border: 1px solid rgba(212, 175, 55, 0.2);
+    }
+
+    .card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-primary);
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 48px rgba(212, 175, 55, 0.1);
+    }
+
+    .btn {
+      transition: all 0.3s ease;
+      background: var(--primary-gold);
+      color: var(--bg-primary);
+      border-radius: 8px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border: none;
+      cursor: pointer;
+      padding: 12px 24px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn:hover {
+      background: var(--primary-gold-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+    }
+
+    .btn-compact {
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      text-transform: none;
+      letter-spacing: normal;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--primary-gold);
+      border: 2px solid var(--primary-gold);
+    }
+
+    .btn-secondary:hover {
+      background: var(--primary-gold);
+      color: var(--bg-primary);
+    }
+
+    .btn:disabled {
+      background: #666;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-danger {
+      background: var(--danger-red);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+
+    .btn-success {
+      background: var(--success-green);
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #059669;
+    }
+
+    .btn-warning {
+      background: var(--warning-orange);
+      color: white;
+    }
+
+    .btn-warning:hover {
+      background: #d97706;
+    }
+
+    .btn-google {
+      background: #4285f4;
+      color: white;
+    }
+
+    .btn-google:hover {
+      background: #3367d6;
+    }
+
+    .btn-facebook {
+      background: #1877f2;
+      color: white;
+    }
+
+    .btn-facebook:hover {
+      background: #166fe5;
+    }
+
+    .input-field {
+      background: var(--bg-tertiary);
+      border: 2px solid var(--border-secondary);
+      color: var(--text-primary);
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      padding: 12px 16px;
+      width: 100%;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: var(--primary-gold);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+    }
+
+    .nav-link {
+      position: relative;
+      color: var(--text-primary);
+      transition: all 0.3s ease;
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .nav-link:hover {
+      color: var(--primary-gold);
+    }
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      backdrop-filter: blur(10px);
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-primary);
+      border-radius: 12px;
+      padding: 32px;
+      max-width: 90vw;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      animation: modalSlideIn 0.3s ease;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+    }
+
+    .seller-sidebar {
+      width: 280px;
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-primary);
+      height: 100vh;
+      position: fixed;
+      left: 0;
+      top: 0;
+      padding-top: 80px;
+      z-index: 40;
+      overflow-y: auto;
+    }
+
+    .seller-content {
+      margin-left: 280px;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .owner-sidebar {
+      width: 280px;
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-primary);
+      height: 100vh;
+      position: fixed;
+      left: 0;
+      top: 0;
+      padding-top: 80px;
+      z-index: 40;
+      overflow-y: auto;
+    }
+
+    .owner-content {
+      margin-left: 280px;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .owner-nav-item {
+      display: block;
+      padding: 16px 24px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: all 0.3s ease;
+      border-left: 4px solid transparent;
+      cursor: pointer;
+      margin: 2px 0;
+    }
+
+    .owner-nav-item:hover,
+    .owner-nav-item.active {
+      background: var(--bg-tertiary);
+      color: var(--primary-gold);
+      border-left-color: var(--primary-gold);
+    }
+
+    .seller-nav-item {
+      display: block;
+      padding: 16px 24px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: all 0.3s ease;
+      border-left: 4px solid transparent;
+      cursor: pointer;
+    }
+
+    .seller-nav-item:hover,
+    .seller-nav-item.active {
+      background: var(--bg-tertiary);
+      color: var(--primary-gold);
+      border-left-color: var(--primary-gold);
+    }
+
+    .dashboard-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .dashboard-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-primary);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .dashboard-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(212, 175, 55, 0.1);
+    }
+
+    .dashboard-card h3 {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: var(--primary-gold);
+      margin-bottom: 8px;
+    }
+
+    .dashboard-card p {
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .dashboard-card .trend {
+      font-size: 0.875rem;
+      margin-top: 8px;
+    }
+
+    .trend.up {
+      color: var(--success-green);
+    }
+
+    .trend.down {
+      color: var(--danger-red);
+    }
+
+    .data-table {
+      width: 100%;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-primary);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .data-table th,
+    .data-table td {
+      padding: 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-primary);
+    }
+
+    .data-table th {
+      background: var(--bg-tertiary);
+      font-weight: 600;
+      color: var(--primary-gold);
+    }
+
+    .data-table tr:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .badge-success {
+      background: var(--success-green);
+      color: white;
+    }
+
+    .badge-warning {
+      background: var(--warning-orange);
+      color: white;
+    }
+
+    .badge-danger {
+      background: var(--danger-red);
+      color: white;
+    }
+
+    .badge-info {
+      background: #3b82f6;
+      color: white;
+    }
+
+    .status-pending {
+      color: var(--warning-orange);
+      background: rgba(245, 158, 11, 0.1);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .status-approved {
+      color: var(--success-green);
+      background: rgba(16, 185, 129, 0.1);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .status-rejected {
+      color: var(--danger-red);
+      background: rgba(239, 68, 68, 0.1);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .notification {
+      padding: 16px;
+      border-radius: 8px;
+      margin: 16px 0;
+      border-left: 4px solid;
+      animation: slideInRight 0.3s ease;
+    }
+
+    .notification-success {
+      background: rgba(16, 185, 129, 0.1);
+      border-left-color: var(--success-green);
+      color: var(--success-green);
+    }
+
+    .notification-warning {
+      background: rgba(245, 158, 11, 0.1);
+      border-left-color: var(--warning-orange);
+      color: var(--warning-orange);
+    }
+
+    .notification-error {
+      background: rgba(239, 68, 68, 0.1);
+      border-left-color: var(--danger-red);
+      color: var(--danger-red);
+    }
+
+    .real-time-indicator {
+      position: relative;
+    }
+
+    .real-time-indicator::before {
+      content: '';
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      width: 12px;
+      height: 12px;
+      background: var(--success-green);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+      }
+      70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+      }
+      100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+      }
+    }
+
+    @keyframes slideInRight {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .application-card {
+      background: var(--bg-secondary);
+      border: 2px solid var(--border-primary);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .application-card.new {
+      border-color: var(--primary-gold);
+      box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+      animation: newApplication 1s ease;
+    }
+
+    @keyframes newApplication {
+      0% {
+        transform: scale(0.95);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .auth-tabs {
+      display: flex;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border-primary);
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 12px;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+
+    .auth-tab.active {
+      color: var(--primary-gold);
+      border-bottom: 2px solid var(--primary-gold);
+    }
+
+    .user-type-selection {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .user-type-card {
+      background: var(--bg-tertiary);
+      border: 2px solid var(--border-secondary);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .user-type-card:hover,
+    .user-type-card.selected {
+      border-color: var(--primary-gold);
+      background: rgba(212, 175, 55, 0.1);
+    }
+
+    .user-type-card i {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      color: var(--primary-gold);
+    }
+
+    .divider {
+      position: relative;
+      text-align: center;
+      margin: 24px 0;
+    }
+
+    .divider::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: var(--border-primary);
+    }
+
+    .divider span {
+      background: var(--bg-secondary);
+      padding: 0 16px;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .social-login {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .checkbox-container input[type="checkbox"] {
+      margin-right: 8px;
+      accent-color: var(--primary-gold);
+    }
+
+    .checkbox-container label {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .forgot-password {
+      color: var(--primary-gold);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .forgot-password:hover {
+      color: var(--primary-gold-dark);
+      text-decoration: underline;
+    }
+
+    .loading-spinner {
+      border: 3px solid var(--border-secondary);
+      border-top: 3px solid var(--primary-gold);
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .demo-accounts {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-secondary);
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 24px;
+    }
+
+    .demo-accounts h4 {
+      color: var(--primary-gold);
+      margin-bottom: 12px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .demo-account {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-primary);
+      font-size: 0.85rem;
+    }
+
+    .demo-account:last-child {
+      border-bottom: none;
+    }
+
+    .demo-account-info {
+      color: var(--text-secondary);
+    }
+
+    .demo-account-type {
+      color: var(--primary-gold);
+      font-weight: 500;
+    }
+
+    .quick-login-btn {
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      margin-left: 8px;
+    }
+
+    .chart-container {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-primary);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .search-filter-bar {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-primary);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .filter-label {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .security-log-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      background: var(--bg-tertiary);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      border-left: 4px solid transparent;
+    }
+
+    .security-log-item.success {
+      border-left-color: var(--success-green);
+    }
+
+    .security-log-item.warning {
+      border-left-color: var(--warning-orange);
+    }
+
+    .security-log-item.danger {
+      border-left-color: var(--danger-red);
+    }
+
+    @media (max-width: 768px) {
+      .seller-sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        padding-top: 0;
+      }
+
+      .seller-content {
+        margin-left: 0;
+      }
+
+      .owner-sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        padding-top: 0;
+      }
+
+      .owner-content {
+        margin-left: 0;
+      }
+
+      .user-type-selection {
+        grid-template-columns: 1fr;
+      }
+      
+      .social-login {
+        grid-template-columns: 1fr;
+      }
+
+      .dashboard-cards {
+        grid-template-columns: 1fr;
+      }
+
+      .search-filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="glass-effect sticky top-0 z-50 p-4">
+  <div class="container mx-auto flex justify-between items-center">
+    <div class="flex items-center space-x-4">
+      <h1 class="text-3xl font-display font-bold gradient-gold cursor-pointer" onclick="showSection('marketplace')">
+        <i class="fas fa-store mr-2"></i>Millo
+      </h1>
+      <span class="badge badge-success">INTEGRATED SYSTEM</span>
+      <span class="real-time-indicator">
+        <i class="fas fa-bolt text-yellow-400" title="Real-time processing enabled"></i>
+      </span>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="hidden md:flex space-x-8">
+      <a class="nav-link" onclick="showSection('marketplace')">
+        <i class="fas fa-store mr-2"></i>Marketplace
+      </a>
+      <a class="nav-link" onclick="showSupplierApplication()">
+        <i class="fas fa-handshake mr-2"></i>Become Supplier
+      </a>
+    </nav>
+
+    <!-- User Info / Login Button -->
+    <div class="flex items-center space-x-4">
+      <!-- Not Logged In -->
+      <div id="not-logged-in" class="flex items-center space-x-3">
+        <button class="btn btn-compact" onclick="showLoginModal()">
+          <i class="fas fa-sign-in-alt mr-2"></i>Sign In
+        </button>
+      </div>
+      
+      <!-- Logged In -->
+      <div id="user-info" class="hidden flex items-center space-x-3">
+        <div class="text-right">
+          <div class="text-yellow-400 font-medium" id="user-name">Welcome!</div>
+          <div class="text-sm text-gray-400" id="user-role"></div>
+          <div class="text-xs text-green-400" id="session-info"></div>
+        </div>
+        <button class="btn-secondary btn-compact" onclick="logout()">
+          <i class="fas fa-sign-out-alt mr-1"></i>Logout
+        </button>
+      </div>
+      
+      <!-- Shopping Cart -->
+      <div class="relative cursor-pointer" onclick="showSection('cart')">
+        <i class="fas fa-shopping-cart text-2xl text-yellow-400 hover:text-yellow-300 transition-colors"></i>
+        <span class="badge badge-info" id="cart-count">0</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Notification Container -->
+<div id="notification-container" style="position: fixed; top: 100px; right: 20px; z-index: 3000; max-width: 400px;"></div>
+
+<!-- Main Content -->
+<main class="min-h-screen">
+  
+  <!-- Marketplace Section -->
+  <section class="fade-in" id="marketplace">
+    <div class="container mx-auto px-6 py-16">
+      <div class="text-center mb-12">
+        <h1 class="text-6xl font-display gradient-gold mb-6">Millo Marketplace</h1>
+        <p class="text-xl text-gray-300 mb-8">
+          Premium products from verified suppliers worldwide
+        </p>
+        <p class="text-lg text-yellow-400 mb-8">
+          <i class="fas fa-store mr-2"></i>Suppliers pay only $25 per product listing - Real-time approval system!
+        </p>
+        
+        <div class="flex flex-col sm:flex-row justify-center gap-4 mt-8">
+          <button class="btn px-8 py-4 text-lg" onclick="showSection('marketplace')">
+            <i class="fas fa-shopping-bag mr-2"></i>Shop Now
+          </button>
+          <button class="btn-secondary px-8 py-4 text-lg" onclick="showSupplierApplication()">
+            <i class="fas fa-handshake mr-2"></i>Join as Supplier
+          </button>
+        </div>
+      </div>
+
+      <!-- Products Grid -->
+      <div class="product-grid" id="products-container">
+        <!-- Sample Products -->
+        <div class="card p-6">
+          <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=200&fit=crop" alt="Product" class="w-full h-48 object-cover rounded-lg mb-4">
+          <h3 class="text-xl font-semibold mb-2">Premium Headphones</h3>
+          <p class="text-gray-300 mb-4">High-quality wireless headphones with noise cancellation</p>
+          <div class="flex justify-between items-center">
+            <span class="text-2xl font-bold text-yellow-400">$299.99</span>
+            <button class="btn" onclick="addToCart('Premium Headphones', 299.99)">
+              <i class="fas fa-shopping-cart mr-2"></i>Add to Cart
+            </button>
+          </div>
+        </div>
+
+        <div class="card p-6">
+          <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300&h=200&fit=crop" alt="Product" class="w-full h-48 object-cover rounded-lg mb-4">
+          <h3 class="text-xl font-semibold mb-2">Running Shoes</h3>
+          <p class="text-gray-300 mb-4">Comfortable and durable running shoes for athletes</p>
+          <div class="flex justify-between items-center">
+            <span class="text-2xl font-bold text-yellow-400">$159.99</span>
+            <button class="btn" onclick="addToCart('Running Shoes', 159.99)">
+              <i class="fas fa-shopping-cart mr-2"></i>Add to Cart
+            </button>
+          </div>
+        </div>
+
+        <div class="card p-6">
+          <img src="https://images.unsplash.com/photo-1484704849700-f032a568e944?w=300&h=200&fit=crop" alt="Product" class="w-full h-48 object-cover rounded-lg mb-4">
+          <h3 class="text-xl font-semibold mb-2">Designer Watch</h3>
+          <p class="text-gray-300 mb-4">Elegant timepiece with premium materials</p>
+          <div class="flex justify-between items-center">
+            <span class="text-2xl font-bold text-yellow-400">$499.99</span>
+            <button class="btn" onclick="addToCart('Designer Watch', 499.99)">
+              <i class="fas fa-shopping-cart mr-2"></i>Add to Cart
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cart Section -->
+  <section class="hidden fade-in" id="cart">
+    <div class="container mx-auto px-6 py-16">
+      <div class="text-center mb-12">
+        <h2 class="text-4xl font-display gradient-gold mb-6">Shopping Cart</h2>
+        <p class="text-xl text-gray-300">Review your items and proceed to checkout</p>
+      </div>
+
+      <div class="card p-8 max-w-4xl mx-auto">
+        <div id="cart-items">
+          <p class="text-center text-gray-400">Your cart is empty</p>
+        </div>
+        
+        <div class="mt-8 pt-8 border-t border-gray-600">
+          <div class="flex justify-between items-center mb-4">
+            <span class="text-xl">Total:</span>
+            <span class="text-2xl font-bold text-yellow-400" id="cart-total">$0.00</span>
+          </div>
+          <button class="btn w-full py-4 text-lg" onclick="proceedToCheckout()" id="checkout-btn" disabled>
+            <i class="fas fa-credit-card mr-2"></i>Proceed to Checkout
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Supplier Dashboard -->
+  <section class="hidden" id="supplier-dashboard">
+    <div class="seller-sidebar">
+      <div class="p-6 border-b border-gray-600">
+        <div class="text-center">
+          <div class="w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center mx-auto mb-3">
+            <i class="fas fa-handshake text-2xl text-black"></i>
+          </div>
+          <h3 class="font-bold text-yellow-400" id="sidebar-supplier-name">Supplier</h3>
+          <p class="text-sm text-gray-400" id="sidebar-supplier-status">Active Seller</p>
+        </div>
+      </div>
+
+      <nav class="mt-8">
+        <a class="seller-nav-item active" onclick="showSupplierPanel('dashboard')">
+          <i class="fas fa-tachometer-alt mr-3"></i>Dashboard
+        </a>
+        <a class="seller-nav-item" onclick="showSupplierPanel('products')">
+          <i class="fas fa-box mr-3"></i>My Products
+        </a>
+        <a class="seller-nav-item" onclick="showSupplierPanel('orders')">
+          <i class="fas fa-shopping-cart mr-3"></i>Orders
+        </a>
+        <a class="seller-nav-item" onclick="showSupplierPanel('earnings')">
+          <i class="fas fa-dollar-sign mr-3"></i>Earnings
+        </a>
+        <a class="seller-nav-item" onclick="showSupplierPanel('profile')">
+          <i class="fas fa-user mr-3"></i>Profile
+        </a>
+      </nav>
+    </div>
+
+    <div class="seller-content">
+      <!-- Supplier Dashboard Panel -->
+      <div class="supplier-panel" id="supplier-dashboard-panel">
+        <h2 class="text-3xl font-bold mb-6">Supplier Dashboard</h2>
+        
+        <div id="supplier-status" class="notification notification-success mb-6">
+          <i class="fas fa-check-circle mr-2"></i>
+          Your supplier account is approved and active!
+        </div>
+        
+        <div class="dashboard-cards">
+          <div class="dashboard-card">
+            <h3 id="supplier-products-count">3</h3>
+            <p>Products Listed</p>
+          </div>
+          <div class="dashboard-card">
+            <h3 id="supplier-orders-count">386</h3>
+            <p>Total Orders</p>
+          </div>
+          <div class="dashboard-card">
+            <h3 id="supplier-earnings">$12,450.75</h3>
+            <p>Total Earnings</p>
+          </div>
+          <div class="dashboard-card">
+            <h3 id="supplier-rating">4.8/5</h3>
+            <p>Supplier Rating</p>
+          </div>
+        </div>
+
+        <div class="card p-6 mt-8">
+          <h3 class="text-xl font-bold mb-4">Recent Activity</h3>
+          <div id="supplier-activity">
+            <div class="flex justify-between items-center py-2 border-b border-gray-600">
+              <span>Product "Wireless Bluetooth Headphones" sold - $79.99</span>
+              <span class="text-sm text-gray-400">30 min ago</span>
+            </div>
+            <div class="flex justify-between items-center py-2 border-b border-gray-600">
+              <span>Product "USB-C Cable 3-Pack" restocked</span>
+              <span class="text-sm text-gray-400">2 hours ago</span>
+            </div>
+            <div class="flex justify-between items-center py-2">
+              <span>Revenue milestone: $12,000 reached!</span>
+              <span class="text-sm text-gray-400">1 day ago</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Supplier Products Panel -->
+      <div class="supplier-panel hidden" id="supplier-products-panel">
+        <div id="supplier-products-list"></div>
+      </div>
+
+      <!-- Supplier Earnings Panel -->
+      <div class="supplier-panel hidden" id="supplier-earnings-panel">
+        <h2 class="text-3xl font-bold mb-6">Revenue & Earnings</h2>
+        <div id="supplier-earnings-details"></div>
+      </div>
+
+      <!-- Supplier Orders Panel -->
+      <div class="supplier-panel hidden" id="supplier-orders-panel">
+        <h2 class="text-3xl font-bold mb-6">Orders Management</h2>
+        <div class="card p-6">
+          <p class="text-gray-400 text-center py-8">Orders management coming soon...</p>
+        </div>
+      </div>
+
+      <!-- Supplier Profile Panel -->
+      <div class="supplier-panel hidden" id="supplier-profile-panel">
+        <h2 class="text-3xl font-bold mb-6">Supplier Profile</h2>
+        <div class="card p-6">
+          <p class="text-gray-400 text-center py-8">Profile settings coming soon...</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Owner Dashboard -->
+  <section class="hidden" id="owner-dashboard">
+    <div class="owner-sidebar">
+      <div class="p-6 border-b border-gray-600">
+        <div class="text-center">
+          <div class="w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center mx-auto mb-3">
+            <i class="fas fa-crown text-2xl text-black"></i>
+          </div>
+          <h3 class="font-bold text-yellow-400" id="sidebar-user-name">Platform Owner</h3>
+          <p class="text-sm text-gray-400" id="sidebar-session-time">Active Session</p>
+          <p class="text-xs text-green-400 mt-2">
+            <i class="fas fa-shield-check mr-1"></i>Secure Connection
+          </p>
+        </div>
+      </div>
+      
+      <nav class="mt-8">
+        <a class="owner-nav-item active" onclick="showOwnerPanel('dashboard')" id="nav-dashboard">
+          <i class="fas fa-tachometer-alt mr-3"></i>Dashboard
+        </a>
+        <a class="owner-nav-item" onclick="showOwnerPanel('applications')" id="nav-applications">
+          <i class="fas fa-clipboard-list mr-3 real-time-indicator"></i>Applications
+          <span class="badge badge-warning ml-2" id="pending-applications-count">5</span>
+        </a>
+        <a class="owner-nav-item" onclick="showOwnerPanel('suppliers')" id="nav-suppliers">
+          <i class="fas fa-handshake mr-3"></i>Suppliers
+          <span class="badge badge-info ml-2" id="active-suppliers-count">24</span>
+        </a>
+        <a class="owner-nav-item" onclick="showOwnerPanel('analytics')" id="nav-analytics">
+          <i class="fas fa-chart-bar mr-3"></i>Analytics
+        </a>
+        <a class="owner-nav-item" onclick="showOwnerPanel('security')" id="nav-security">
+          <i class="fas fa-shield-alt mr-3"></i>Security
+        </a>
+        <a class="owner-nav-item" onclick="showOwnerPanel('settings')" id="nav-settings">
+          <i class="fas fa-cog mr-3"></i>Settings
+        </a>
+      </nav>
+    </div>
+
+    <div class="owner-content">
+      
+      <!-- Dashboard Panel -->
+      <div class="owner-panel" id="owner-dashboard-panel">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-3xl font-bold">Owner Dashboard</h2>
+          <div class="text-sm text-gray-400">
+            Last login: <span id="last-login-time">Today, 2:30 PM</span>
+          </div>
+        </div>
+        
+        <div class="notification notification-success mb-6">
+          <i class="fas fa-check-circle mr-2"></i>
+          <strong>System Status:</strong> All systems operational. Platform running smoothly.
+        </div>
+        
+        <div class="dashboard-cards">
+          <div class="dashboard-card">
+            <h3 id="total-suppliers">24</h3>
+            <p>Active Suppliers</p>
+            <div class="trend up"> +15% this month</div>
+          </div>
+          <div class="dashboard-card">
+            <h3 id="pending-applications-dash">5</h3>
+            <p>Pending Applications</p>
+            <div class="trend up">3 new today</div>
+          </div>
+          <div class="dashboard-card">
+            <h3 id="total-revenue">$67,430</h3>
+            <p>Platform Revenue</p>
+            <div class="trend up"> +22% this month</div>
+          </div>
+          <div class="dashboard-card">
+            <h3 id="approval-rate">96%</h3>
+            <p>Approval Rate</p>
+            <div class="trend up">Above target</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <!-- Recent Activity -->
+          <div class="card p-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center">
+              <i class="fas fa-clock mr-2 text-yellow-400"></i>Recent Activity
+            </h3>
+            <div id="owner-activity">
+              <div class="flex justify-between items-center py-3 border-b border-gray-600">
+                <div class="flex items-center">
+                  <i class="fas fa-check-circle text-green-400 mr-3"></i>
+                  <span>Approved supplier: <strong>TechCorp Inc.</strong></span>
+                </div>
+                <span class="text-sm text-gray-400">2 min ago</span>
+              </div>
+              <div class="flex justify-between items-center py-3 border-b border-gray-600">
+                <div class="flex items-center">
+                  <i class="fas fa-bell text-yellow-400 mr-3"></i>
+                  <span>New application from <strong>Fashion Plus Ltd</strong></span>
+                </div>
+                <span class="text-sm text-gray-400">15 min ago</span>
+              </div>
+              <div class="flex justify-between items-center py-3 border-b border-gray-600">
+                <div class="flex items-center">
+                  <i class="fas fa-dollar-sign text-green-400 mr-3"></i>
+                  <span>Listing fee received: <strong>$25</strong></span>
+                </div>
+                <span class="text-sm text-gray-400">23 min ago</span>
+              </div>
+              <div class="flex justify-between items-center py-3">
+                <div class="flex items-center">
+                  <i class="fas fa-users text-blue-400 mr-3"></i>
+                  <span>System backup completed successfully</span>
+                </div>
+                <span class="text-sm text-gray-400">1 hour ago</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- System Health -->
+          <div class="card p-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center">
+              <i class="fas fa-heartbeat mr-2 text-red-400"></i>System Health
+            </h3>
+            <div class="space-y-4">
+              <div class="flex justify-between items-center">
+                <span class="flex items-center">
+                  <i class="fas fa-database mr-2 text-green-400"></i>Database Status
+                </span>
+                <span class="badge badge-success">Healthy</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="flex items-center">
+                  <i class="fas fa-tachometer-alt mr-2 text-blue-400"></i>API Response Time
+                </span>
+                <span class="text-green-400">127ms</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="flex items-center">
+                  <i class="fas fa-users mr-2 text-yellow-400"></i>Active Sessions
+                </span>
+                <span class="text-yellow-400">42</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="flex items-center">
+                  <i class="fas fa-server mr-2 text-green-400"></i>Server Load
+                </span>
+                <span class="text-green-400">23%</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="flex items-center">
+                  <i class="fas fa-hdd mr-2 text-green-400"></i>Storage Usage
+                </span>
+                <span class="text-green-400">67%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Applications Panel -->
+      <div class="owner-panel hidden" id="owner-applications-panel">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-3xl font-bold">Supplier Applications</h2>
+          <div class="flex space-x-4">
+            <span class="text-sm text-gray-400">Auto-refresh: <strong class="text-green-400">ON</strong></span>
+            <button class="btn btn-compact" onclick="refreshApplications()">
+              <i class="fas fa-sync-alt mr-2"></i>Refresh
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="search-filter-bar">
+          <div class="filter-group">
+            <label class="filter-label">Status</label>
+            <select class="input-field" onchange="filterApplications()" id="application-status-filter" style="width: 150px;">
+              <option value="all">All Applications</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Date Range</label>
+            <select class="input-field" onchange="filterApplications()" id="application-date-filter" style="width: 150px;">
+              <option value="all">All Time</option>
+              <option value="today">Today</option>
+              <option value="week">This Week</option>
+              <option value="month">This Month</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Search</label>
+            <input type="text" class="input-field" placeholder="Search applications..." onkeyup="searchApplications()" id="application-search" style="width: 200px;">
+          </div>
+        </div>
+
+        <!-- Applications List -->
+        <div id="applications-container">
+          <!-- Applications will be populated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- Suppliers Panel -->
+      <div class="owner-panel hidden" id="owner-suppliers-panel">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-3xl font-bold">Supplier Management</h2>
+          <div class="flex space-x-4">
+            <button class="btn btn-compact" onclick="exportSuppliers()">
+              <i class="fas fa-download mr-2"></i>Export
+            </button>
+            <button class="btn btn-compact" onclick="refreshSuppliers()">
+              <i class="fas fa-sync-alt mr-2"></i>Refresh
+            </button>
+          </div>
+        </div>
+
+        <!-- Suppliers Stats -->
+        <div class="dashboard-cards mb-6">
+          <div class="dashboard-card">
+            <h3 id="active-suppliers-stat">24</h3>
+            <p>Active Suppliers</p>
+          </div>
+          <div class="dashboard-card">
+            <h3 id="avg-supplier-rating">4.7</h3>
+            <p>Average Rating</p>
+          </div>
+          <div class="dashboard-card">
+            <h3 id="total-products">1,247</h3>
+            <p>Total Products</p>
+          </div>
+          <div class="dashboard-card">
+            <h3 id="monthly-earnings">$12,450</h3>
+            <p>Monthly Earnings</p>
+          </div>
+        </div>
+
+        <!-- Suppliers Table -->
+        <div class="card">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Supplier</th>
+                <th>Status</th>
+                <th>Products</th>
+                <th>Rating</th>
+                <th>Revenue</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="suppliers-table-body">
+              <!-- Suppliers data will be populated by JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Analytics Panel -->
+      <div class="owner-panel hidden" id="owner-analytics-panel">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-3xl font-bold">Analytics & Reports</h2>
+          <div class="flex space-x-4">
+            <select class="input-field" style="width: 150px;" onchange="updateAnalytics()">
+              <option value="7days">Last 7 Days</option>
+              <option value="30days" selected>Last 30 Days</option>
+              <option value="90days">Last 90 Days</option>
+              <option value="year">This Year</option>
+            </select>
+            <button class="btn btn-compact" onclick="exportAnalytics()">
+              <i class="fas fa-file-export mr-2"></i>Export Report
+            </button>
+          </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <div class="chart-container">
+            <h3 class="text-lg font-bold mb-4">Revenue Trend</h3>
+            <canvas id="revenue-chart" width="400" height="200"></canvas>
+          </div>
+          <div class="chart-container">
+            <h3 class="text-lg font-bold mb-4">Application Status</h3>
+            <canvas id="applications-chart" width="400" height="200"></canvas>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="chart-container">
+            <h3 class="text-lg font-bold mb-4">Supplier Growth</h3>
+            <canvas id="supplier-growth-chart" width="400" height="200"></canvas>
+          </div>
+          <div class="chart-container">
+            <h3 class="text-lg font-bold mb-4">Category Distribution</h3>
+            <canvas id="category-chart" width="400" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Security Panel -->
+      <div class="owner-panel hidden" id="owner-security-panel">
+        <h2 class="text-3xl font-bold mb-6">Security Center</h2>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <!-- Security Overview -->
+          <div class="card p-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center">
+              <i class="fas fa-shield-alt mr-2 text-green-400"></i>Security Overview
+            </h3>
+            <div class="space-y-4">
+              <div class="flex justify-between items-center">
+                <span>Two-Factor Authentication</span>
+                <span class="badge badge-success">Enabled</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span>SSL Certificate</span>
+                <span class="badge badge-success">Valid</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span>Firewall Status</span>
+                <span class="badge badge-success">Active</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span>Last Security Scan</span>
+                <span class="text-gray-400">2 hours ago</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span>Failed Login Attempts</span>
+                <span class="text-yellow-400">3 (Last 24h)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Security Events -->
+          <div class="card p-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center">
+              <i class="fas fa-exclamation-triangle mr-2 text-yellow-400"></i>Security Log
+            </h3>
+            <div id="security-log">
+              <div class="security-log-item success">
+                <div>
+                  <div class="font-medium">Successful admin login</div>
+                  <div class="text-sm text-gray-400">IP: 192.168.1.100</div>
+                </div>
+                <div class="text-sm text-gray-400">2:30 PM</div>
+              </div>
+              <div class="security-log-item warning">
+                <div>
+                  <div class="font-medium">Failed login attempt</div>
+                  <div class="text-sm text-gray-400">IP: 203.0.113.195</div>
+                </div>
+                <div class="text-sm text-gray-400">1:45 PM</div>
+              </div>
+              <div class="security-log-item success">
+                <div>
+                  <div class="font-medium">Password changed</div>
+                  <div class="text-sm text-gray-400">User: admin@millo.com</div>
+                </div>
+                <div class="text-sm text-gray-400">11:20 AM</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Security Settings -->
+        <div class="card p-6 mt-6">
+          <h3 class="text-xl font-bold mb-4">Security Settings</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="form-group">
+              <label class="form-label">Session Timeout (minutes)</label>
+              <input type="number" class="input-field" value="30" id="session-timeout">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Max Failed Login Attempts</label>
+              <input type="number" class="input-field" value="5" id="max-login-attempts">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Password Minimum Length</label>
+              <input type="number" class="input-field" value="8" id="password-min-length">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Account Lockout Duration (minutes)</label>
+              <input type="number" class="input-field" value="15" id="lockout-duration">
+            </div>
+          </div>
+          <div class="mt-6">
+            <button class="btn mr-4" onclick="updateSecuritySettings()">
+              <i class="fas fa-save mr-2"></i>Save Settings
+            </button>
+            <button class="btn-secondary" onclick="resetSecuritySettings()">
+              <i class="fas fa-undo mr-2"></i>Reset to Default
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Panel -->
+      <div class="owner-panel hidden" id="owner-settings-panel">
+        <h2 class="text-3xl font-bold mb-6">Platform Settings</h2>
+        
+        <div class="space-y-6">
+          <!-- General Settings -->
+          <div class="card p-6">
+            <h3 class="text-xl font-bold mb-4">General Settings</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="form-group">
+                <label class="form-label">Platform Name</label>
+                <input type="text" class="input-field" value="Millo Marketplace" id="platform-name">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Contact Email</label>
+                <input type="email" class="input-field" value="contact@millo.com" id="contact-email">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Supplier Registration Fee</label>
+                <input type="number" class="input-field" value="25" id="registration-fee">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Commission Rate (%)</label>
+                <input type="number" class="input-field" value="5" id="commission-rate" min="0" max="100" step="0.1">
+              </div>
+            </div>
+          </div>
+
+          <!-- Feature Toggles -->
+          <div class="card p-6">
+            <h3 class="text-xl font-bold mb-4">Feature Controls</h3>
+            <div class="space-y-4">
+              <div class="flex justify-between items-center">
+                <div>
+                  <div class="font-medium">Auto-approve Suppliers</div>
+                  <div class="text-sm text-gray-400">Automatically approve qualified supplier applications</div>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" class="sr-only peer" id="auto-approve" checked>
+                  <div class="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-400"></div>
+                </label>
+              </div>
+              <div class="flex justify-between items-center">
+                <div>
+                  <div class="font-medium">Email Notifications</div>
+                  <div class="text-sm text-gray-400">Send email notifications for important events</div>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" class="sr-only peer" id="email-notifications" checked>
+                  <div class="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-400"></div>
+                </label>
+              </div>
+              <div class="flex justify-between items-center">
+                <div>
+                  <div class="font-medium">Maintenance Mode</div>
+                  <div class="text-sm text-gray-400">Put the platform in maintenance mode</div>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" class="sr-only peer" id="maintenance-mode">
+                  <div class="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-400"></div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- System Information -->
+          <div class="card p-6">
+            <h3 class="text-xl font-bold mb-4">System Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <div class="text-sm text-gray-400">Platform Version</div>
+                <div class="font-medium">v2.1.4</div>
+              </div>
+              <div>
+                <div class="text-sm text-gray-400">Database Version</div>
+                <div class="font-medium">PostgreSQL 14.2</div>
+              </div>
+              <div>
+                <div class="text-sm text-gray-400">Server Uptime</div>
+                <div class="font-medium">15 days, 7 hours</div>
+              </div>
+              <div>
+                <div class="text-sm text-gray-400">Last Backup</div>
+                <div class="font-medium">Today, 3:00 AM</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex space-x-4">
+            <button class="btn" onclick="saveSettings()">
+              <i class="fas fa-save mr-2"></i>Save All Settings
+            </button>
+            <button class="btn-warning" onclick="backupSystem()">
+              <i class="fas fa-database mr-2"></i>Backup System
+            </button>
+            <button class="btn-danger" onclick="confirmResetSystem()">
+              <i class="fas fa-exclamation-triangle mr-2"></i>Reset System
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+<!-- Login Modal -->
+<div class="modal" id="login-modal">
+  <div class="modal-content" style="max-width: 500px;">
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="text-2xl font-bold gradient-gold">Welcome to Millo</h3>
+      <button onclick="closeLoginModal()" class="text-gray-400 hover:text-white">
+        <i class="fas fa-times text-2xl"></i>
+      </button>
+    </div>
+
+    <!-- User Type Selection -->
+    <div class="user-type-selection">
+      <div class="user-type-card selected" id="customer-type" onclick="selectUserType('customer')">
+        <i class="fas fa-shopping-cart"></i>
+        <h4 class="font-bold">Customer</h4>
+        <p class="text-sm text-gray-400">Shop products</p>
+      </div>
+      <div class="user-type-card" id="supplier-type" onclick="selectUserType('supplier')">
+        <i class="fas fa-handshake"></i>
+        <h4 class="font-bold">Supplier</h4>
+        <p class="text-sm text-gray-400">Sell products</p>
+      </div>
+      <div class="user-type-card" id="owner-type" onclick="selectUserType('owner')">
+        <i class="fas fa-crown"></i>
+        <h4 class="font-bold">Owner</h4>
+        <p class="text-sm text-gray-400">Manage platform</p>
+      </div>
+    </div>
+
+    <!-- Auth Tabs -->
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="signin-tab" onclick="switchTab('signin')">Sign In</button>
+      <button class="auth-tab" id="signup-tab" onclick="switchTab('signup')">Sign Up</button>
+    </div>
+
+    <!-- Notification Area -->
+    <div id="modal-notification-area"></div>
+
+    <!-- Sign In Form -->
+    <form id="signin-form" onsubmit="handleSignIn(event)">
+      
+      <!-- Social Login -->
+      <div class="social-login">
+        <button type="button" class="btn-google btn-compact" onclick="socialLogin('google')">
+          <i class="fab fa-google mr-2"></i>Google
+        </button>
+        <button type="button" class="btn-facebook btn-compact" onclick="socialLogin('facebook')">
+          <i class="fab fa-facebook-f mr-2"></i>Facebook
+        </button>
+      </div>
+
+      <div class="divider">
+        <span>Or continue with email</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          <i class="fas fa-envelope mr-2"></i>Email Address
+        </label>
+        <input type="email" class="input-field" id="signin-email" name="email" placeholder="Enter your email" required>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">
+          <i class="fas fa-lock mr-2"></i>Password
+        </label>
+        <input type="password" class="input-field" id="signin-password" name="password" placeholder="Enter your password" required>
+      </div>
+
+      <!-- Two-Factor Code for Owner -->
+      <div class="form-group hidden" id="owner-2fa-group">
+        <label class="form-label">
+          <i class="fas fa-shield-alt mr-2"></i>Two-Factor Code (Optional)
+        </label>
+        <input type="text" class="input-field" id="owner-2fa" placeholder="6-digit code (if enabled)">
+      </div>
+
+      <div class="flex justify-between items-center mb-6">
+        <div class="checkbox-container">
+          <input type="checkbox" id="remember-me" name="remember">
+          <label for="remember-me">Remember me</label>
+        </div>
+        <a href="#" class="forgot-password" onclick="showForgotPassword()">Forgot password?</a>
+      </div>
+
+      <button type="submit" class="btn w-full py-3" id="signin-btn">
+        <i class="fas fa-sign-in-alt mr-2"></i>Sign In
+      </button>
+    </form>
+
+    <!-- Sign Up Form -->
+    <form id="signup-form" class="hidden" onsubmit="handleSignUp(event)">
+      
+      <!-- Social Login -->
+      <div class="social-login">
+        <button type="button" class="btn-google btn-compact" onclick="socialLogin('google')">
+          <i class="fab fa-google mr-2"></i>Google
+        </button>
+        <button type="button" class="btn-facebook btn-compact" onclick="socialLogin('facebook')">
+          <i class="fab fa-facebook-f mr-2"></i>Facebook
+        </button>
+      </div>
+
+      <div class="divider">
+        <span>Or create account with email</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input type="text" class="input-field" id="signup-name" name="fullName" placeholder="Enter your full name" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input type="email" class="input-field" id="signup-email" name="email" placeholder="Enter your email" required>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" class="input-field" id="signup-password" name="password" placeholder="Create a password" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Confirm Password</label>
+        <input type="password" class="input-field" id="confirm-password" name="confirmPassword" placeholder="Confirm your password" required>
+      </div>
+
+      <!-- Additional fields for suppliers -->
+      <div id="supplier-fields" class="hidden">
+        <div class="form-group">
+          <label class="form-label">Business Name</label>
+          <input type="text" class="input-field" id="business-name" name="businessName" placeholder="Enter your business name">
+        </div>
+      </div>
+
+      <div class="checkbox-container">
+        <input type="checkbox" id="terms-agreement" name="terms" required>
+        <label for="terms-agreement">I agree to the Terms of Service and Privacy Policy</label>
+      </div>
+
+      <button type="submit" class="btn w-full py-3" id="signup-btn">
+        <i class="fas fa-user-plus mr-2"></i>Create Account
+      </button>
+    </form>
+
+    <!-- Demo Accounts -->
+    <div class="demo-accounts">
+      <h4><i class="fas fa-flask mr-2"></i>Demo Accounts - Quick Login</h4>
+      
+      <div class="demo-account">
+        <div>
+          <div class="demo-account-type">Customer Account</div>
+          <div class="demo-account-info">customer@demo.com / password123</div>
+        </div>
+        <button class="btn quick-login-btn btn-compact" onclick="quickLogin('customer@demo.com', 'password123', 'customer')">
+          Login
+        </button>
+      </div>
+
+      <div class="demo-account">
+        <div>
+          <div class="demo-account-type">Supplier Account</div>
+          <div class="demo-account-info">supplier@demo.com / supplier123</div>
+        </div>
+        <button class="btn quick-login-btn btn-compact" onclick="quickLogin('supplier@demo.com', 'supplier123', 'supplier')">
+          Login
+        </button>
+      </div>
+
+      <div class="demo-account">
+        <div>
+          <div class="demo-account-type">Owner Account</div>
+          <div class="demo-account-info">owner@millo.com / owner123</div>
+        </div>
+        <button class="btn quick-login-btn btn-compact" onclick="quickLogin('owner@millo.com', 'owner123', 'owner')">
+          Login
+        </button>
+      </div>
+    </div>
+
+    <div class="mt-6 p-4 bg-gray-800 rounded-lg">
+      <div class="text-sm text-gray-400 mb-2">
+        <i class="fas fa-info-circle mr-1"></i>Demo Credentials Available Above
+      </div>
+      <div class="text-xs text-gray-500">
+        <i class="fas fa-shield-alt mr-1"></i>Secured by 256-bit SSL encryption
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Enhanced Supplier Application Modal -->
+<div class="modal" id="supplier-application-modal">
+  <div class="modal-content" style="max-width: 800px;">
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="text-2xl font-bold">Become a Supplier</h3>
+      <button onclick="closeModal('supplier-application-modal')" class="text-gray-400 hover:text-white">
+        <i class="fas fa-times text-2xl"></i>
+      </button>
+    </div>
+
+    <div class="text-center mb-6">
+      <h4 class="text-xl font-bold mb-2">Join Our Marketplace</h4>
+      <p class="text-gray-300">Start selling your products for just $25 per listing</p>
+      <div class="notification notification-success mt-4">
+        <i class="fas fa-bolt mr-2"></i>
+        <strong>Real-time Processing:</strong> Get instant approval or feedback!
+      </div>
+    </div>
+
+    <form id="supplier-application-form" onsubmit="handleSupplierApplication(event)">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="form-group">
+          <label class="form-label">Business Name *</label>
+          <input type="text" class="input-field" name="businessName" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Contact Email *</label>
+          <input type="email" class="input-field" name="email" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone Number *</label>
+          <input type="tel" class="input-field" name="phone" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Years of Experience *</label>
+          <select class="input-field" name="experience" required>
+            <option value="">Select Experience</option>
+            <option value="0-1">0-1 years</option>
+            <option value="2-5">2-5 years</option>
+            <option value="6-10">6-10 years</option>
+            <option value="10+">10+ years</option>
+          </select>
+        </div>
+        <div class="form-group md:col-span-2">
+          <label class="form-label">Product Categories *</label>
+          <textarea class="input-field" name="categories" rows="3" placeholder="e.g., Electronics, Fashion, Home & Garden" required></textarea>
+        </div>
+        <div class="form-group md:col-span-2">
+          <label class="form-label">Why do you want to sell on Millo? *</label>
+          <textarea class="input-field" name="reason" rows="4" required></textarea>
+        </div>
+        <div class="form-group md:col-span-2">
+          <label class="form-label">Annual Revenue (USD) *</label>
+          <select class="input-field" name="revenue" required>
+            <option value="">Select Revenue Range</option>
+            <option value="0-50k">$0 - $50,000</option>
+            <option value="50k-100k">$50,000 - $100,000</option>
+            <option value="100k-500k">$100,000 - $500,000</option>
+            <option value="500k+">$500,000+</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="checkbox-container mt-6">
+        <input type="checkbox" id="supplier-terms" required>
+        <label for="supplier-terms">I agree to the Supplier Terms and Conditions</label>
+      </div>
+
+      <button type="submit" class="btn w-full py-4 text-lg mt-6">
+        <i class="fas fa-paper-plane mr-2"></i>Submit Application
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+// Global variables
+let currentUser = null;
+let isLoggedIn = false;
+let selectedUserType = 'customer';
+let currentTab = 'signin';
+let cart = [];
+
+// Demo users database
+const demoUsers = {
+  'customer@demo.com': {
+    password: 'password123',
+    type: 'customer',
+    name: 'Demo Customer'
+  },
+  'supplier@demo.com': {
+    password: 'supplier123',
+    type: 'supplier',
+    name: 'Demo Supplier',
+    businessName: 'Demo Business',
+    status: 'approved'
+  },
+  'owner@millo.com': {
+    password: 'owner123',
+    type: 'owner',
+    name: 'Platform Owner',
+    role: 'Administrator'
+  }
+};
+
+// Initialize app
+document.addEventListener('DOMContentLoaded', function() {
+  // Check for saved session
+  const savedSession = localStorage.getItem('milloSession');
+  if (savedSession) {
+    const sessionData = JSON.parse(savedSession);
+    currentUser = sessionData.user;
+    isLoggedIn = true;
+    updateUIForLoggedInUser(currentUser);
+    
+    // Show appropriate dashboard
+    if (currentUser.type === 'supplier') {
+      showSection('supplier-dashboard');
+    } else if (currentUser.type === 'owner') {
+      showSection('owner-dashboard');
+      initializeOwnerDashboard();
+    } else {
+      showSection('marketplace');
+    }
+  } else {
+    showSection('marketplace');
+  }
+});
+
+// User type selection
+function selectUserType(type) {
+  selectedUserType = type;
+  
+  // Update visual selection
+  document.querySelectorAll('.user-type-card').forEach(card => {
+    card.classList.remove('selected');
+  });
+  document.getElementById(`${type}-type`).classList.add('selected');
+  
+  // Show/hide supplier fields for signup
+  const supplierFields = document.getElementById('supplier-fields');
+  const ownerTFAGroup = document.getElementById('owner-2fa-group');
+  
+  if (type === 'supplier' && currentTab === 'signup') {
+    supplierFields.classList.remove('hidden');
+  } else {
+    supplierFields.classList.add('hidden');
+  }
+  
+  if (type === 'owner' && currentTab === 'signin') {
+    ownerTFAGroup.classList.remove('hidden');
+  } else {
+    ownerTFAGroup.classList.add('hidden');
+  }
+}
+
+// Tab switching
+function switchTab(tab) {
+  currentTab = tab;
+  
+  // Update tab appearance
+  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(`${tab}-tab`).classList.add('active');
+  
+  // Show/hide forms
+  if (tab === 'signin') {
+    document.getElementById('signin-form').classList.remove('hidden');
+    document.getElementById('signup-form').classList.add('hidden');
+  } else {
+    document.getElementById('signin-form').classList.add('hidden');
+    document.getElementById('signup-form').classList.remove('hidden');
+  }
+  
+  // Update supplier fields visibility
+  selectUserType(selectedUserType);
+}
+
+// Show login modal
+function showLoginModal() {
+  document.getElementById('login-modal').classList.add('show');
+  // Clear previous notifications
+  document.getElementById('modal-notification-area').innerHTML = '';
+}
+
+// Close login modal
+function closeLoginModal() {
+  document.getElementById('login-modal').classList.remove('show');
+}
+
+// Close modal
+function closeModal(modalId) {
+  document.getElementById(modalId).classList.remove('show');
+}
+
+// Handle sign in
+function handleSignIn(event) {
+  event.preventDefault();
+  
+  const email = document.getElementById('signin-email').value.trim();
+  const password = document.getElementById('signin-password').value;
+  const twoFACode = document.getElementById('owner-2fa').value;
+  const rememberMe = document.getElementById('remember-me').checked;
+  
+  // Show loading state
+  const signInBtn = document.getElementById('signin-btn');
+  const originalText = signInBtn.innerHTML;
+  signInBtn.innerHTML = '<div class="loading-spinner"></div>Signing in...';
+  signInBtn.disabled = true;
+  
+  // Simulate authentication delay
+  setTimeout(() => {
+    const user = demoUsers[email];
+    
+    if (user && user.password === password && user.type === selectedUserType) {
+      // Successful login
+      currentUser = { ...user, email };
+      isLoggedIn = true;
+      
+      // Save session if remember me is checked
+      if (rememberMe) {
+        localStorage.setItem('milloSession', JSON.stringify({
+          user: currentUser,
+          timestamp: new Date().toISOString()
+        }));
+      }
+      
+      loginSuccess();
+    } else if (user && user.type !== selectedUserType) {
+      showModalNotification(`This email is registered as a ${user.type}. Please select the correct account type.`, 'warning');
+    } else {
+      showModalNotification('Invalid email or password. Please try again.', 'error');
+    }
+    
+    // Reset button
+    signInBtn.innerHTML = originalText;
+    signInBtn.disabled = false;
+  }, 1500);
+}
+
+// Handle sign up
+function handleSignUp(event) {
+  event.preventDefault();
+  
+  const formData = new FormData(event.target);
+  const email = formData.get('email').trim();
+  const password = formData.get('password');
+  const confirmPassword = formData.get('confirmPassword');
+  const fullName = formData.get('fullName').trim();
+  const businessName = selectedUserType === 'supplier' ? formData.get('businessName')?.trim() : null;
+  
+  // Validate passwords match
+  if (password !== confirmPassword) {
+    showModalNotification('Passwords do not match.', 'error');
+    return;
+  }
+  
+  // Check if email already exists
+  if (demoUsers[email]) {
+    showModalNotification('An account with this email already exists.', 'warning');
+    return;
+  }
+  
+  // Show loading state
+  const signUpBtn = document.getElementById('signup-btn');
+  const originalText = signUpBtn.innerHTML;
+  signUpBtn.innerHTML = '<div class="loading-spinner"></div>Creating account...';
+  signUpBtn.disabled = true;
+  
+  // Simulate account creation delay
+  setTimeout(() => {
+    // Create new user
+    const newUser = {
+      email,
+      password,
+      name: fullName,
+      type: selectedUserType
+    };
+    
+    if (selectedUserType === 'supplier') {
+      newUser.businessName = businessName;
+      newUser.status = 'pending';
+    }
+    
+    // Add to demo users (in real app, this would be saved to database)
+    demoUsers[email] = newUser;
+    
+    if (selectedUserType === 'supplier') {
+      showModalNotification('Account created! Your supplier application is under review. You will be notified once approved.', 'success');
+    } else {
+      showModalNotification('Account created successfully! You can now sign in.', 'success');
+      // Switch to sign in tab
+      switchTab('signin');
+      // Pre-fill email
+      document.getElementById('signin-email').value = email;
+    }
+    
+    // Reset button
+    signUpBtn.innerHTML = originalText;
+    signUpBtn.disabled = false;
+    
+    // Clear form
+    event.target.reset();
+  }, 2000);
+}
+
+// Quick login function
+function quickLogin(email, password, type) {
+  // Set user type
+  selectedUserType = type;
+  selectUserType(type);
+  
+  // Fill form
+  document.getElementById('signin-email').value = email;
+  document.getElementById('signin-password').value = password;
+  
+  // Switch to sign in tab if needed
+  if (currentTab !== 'signin') {
+    switchTab('signin');
+  }
+  
+  // Trigger login
+  setTimeout(() => {
+    document.getElementById('signin-form').dispatchEvent(new Event('submit'));
+  }, 100);
+}
+
+// Login success
+function loginSuccess() {
+  closeLoginModal();
+  updateUIForLoggedInUser(currentUser);
+  showNotification(`Welcome ${currentUser.name}!`, 'success');
+  
+  // Redirect based on user type
+  if (currentUser.type === 'supplier') {
+    showSection('supplier-dashboard');
+  } else if (currentUser.type === 'owner') {
+    showSection('owner-dashboard');
+    initializeOwnerDashboard();
+  } else {
+    showSection('marketplace');
+  }
+}
+
+// Update UI for logged in user
+function updateUIForLoggedInUser(user) {
+  document.getElementById('not-logged-in').classList.add('hidden');
+  document.getElementById('user-info').classList.remove('hidden');
+  document.getElementById('user-name').textContent = user.name;
+  
+  if (user.type === 'owner') {
+    document.getElementById('user-role').textContent = user.role || 'Administrator';
+    document.getElementById('session-info').textContent = 'Active Session';
+  } else if (user.type === 'supplier') {
+    document.getElementById('user-role').textContent = 'Supplier';
+  } else {
+    document.getElementById('user-role').textContent = 'Customer';
+  }
+}
+
+// Logout
+function logout() {
+  currentUser = null;
+  isLoggedIn = false;
+  localStorage.removeItem('milloSession');
+  
+  // Update UI
+  document.getElementById('not-logged-in').classList.remove('hidden');
+  document.getElementById('user-info').classList.add('hidden');
+  
+  // Show notification and redirect
+  showNotification('You have been logged out successfully.', 'success');
+  showSection('marketplace');
+}
+
+// Show notification
+function showNotification(message, type = 'success') {
+  const container = document.getElementById('notification-container');
+  const notification = document.createElement('div');
+  notification.className = `notification notification-${type}`;
+  
+  const icon = type === 'success' ? 'check-circle' : 
+               type === 'warning' ? 'exclamation-triangle' : 'times-circle';
+  
+  notification.innerHTML = `
+    <i class="fas fa-${icon} mr-2"></i>
+    ${message}
+  `;
+  
+  container.appendChild(notification);
+  
+  // Auto remove after 5 seconds
+  setTimeout(() => {
+    if (notification.parentNode) {
+      notification.parentNode.removeChild(notification);
+    }
+  }, 5000);
+}
+
+// Show modal notification
+function showModalNotification(message, type = 'success') {
+  const area = document.getElementById('modal-notification-area');
+  area.innerHTML = `
+    <div class="notification notification-${type}">
+      <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'times-circle'} mr-2"></i>
+      ${message}
+    </div>
+  `;
+}
+
+// Social login
+function socialLogin(provider) {
+  showModalNotification(`${provider} login integration coming soon!`, 'warning');
+}
+
+// Show forgot password
+function showForgotPassword() {
+  showModalNotification('Password reset feature coming soon! Use demo accounts for now.', 'warning');
+}
+
+// Show section
+function showSection(sectionId) {
+  // Hide all sections
+  document.querySelectorAll('main > section').forEach(section => {
+    section.classList.add('hidden');
+  });
+  
+  // Show requested section
+  document.getElementById(sectionId).classList.remove('hidden');
+}
+
+// Show supplier application modal
+function showSupplierApplication() {
+  document.getElementById('supplier-application-modal').classList.add('show');
+}
+
+// Handle supplier application
+function handleSupplierApplication(event) {
+  event.preventDefault();
+  
+  const formData = new FormData(event.target);
+  const applicationData = Object.fromEntries(formData);
+  
+  // Show success message
+  showNotification('Application submitted successfully! You will hear from us within 24 hours.', 'success');
+  closeModal('supplier-application-modal');
+  
+  // Clear form
+  event.target.reset();
+}
+
+// Shopping cart functions
+function addToCart(name, price) {
+  if (!isLoggedIn) {
+    showNotification('Please login to add items to cart.', 'warning');
+    showLoginModal();
+    return;
+  }
+  
+  cart.push({ name, price, id: Date.now() });
+  updateCartDisplay();
+  showNotification(`${name} added to cart!`, 'success');
+}
+
+function updateCartDisplay() {
+  const cartCount = document.getElementById('cart-count');
+  const cartItems = document.getElementById('cart-items');
+  const cartTotal = document.getElementById('cart-total');
+  const checkoutBtn = document.getElementById('checkout-btn');
+  
+  cartCount.textContent = cart.length;
+  
+  if (cart.length === 0) {
+    cartItems.innerHTML = '<p class="text-center text-gray-400">Your cart is empty</p>';
+    cartTotal.textContent = '$0.00';
+    checkoutBtn.disabled = true;
+  } else {
+    const total = cart.reduce((sum, item) => sum + item.price, 0);
+    
+    cartItems.innerHTML = cart.map(item => `
+      <div class="flex justify-between items-center py-4 border-b border-gray-600">
+        <span class="font-medium">${item.name}</span>
+        <div class="flex items-center space-x-4">
+          <span class="text-yellow-400 font-bold">$${item.price}</span>
+          <button class="text-red-400 hover:text-red-300" onclick="removeFromCart(${item.id})">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    `).join('');
+    
+    cartTotal.textContent = `$${total.toFixed(2)}`;
+    checkoutBtn.disabled = false;
+  }
+}
+
+function removeFromCart(id) {
+  cart = cart.filter(item => item.id !== id);
+  updateCartDisplay();
+  showNotification('Item removed from cart.', 'success');
+}
+
+function proceedToCheckout() {
+  showNotification('Checkout feature coming soon!', 'warning');
+}
+
+// Owner Dashboard Functions
+function initializeOwnerDashboard() {
+  // Initialize charts and data
+  loadApplications();
+  loadSuppliers();
+  initializeCharts();
+  
+  // Update session time
+  document.getElementById('sidebar-session-time').textContent = new Date().toLocaleTimeString();
+  document.getElementById('last-login-time').textContent = new Date().toLocaleString();
+}
+
+function showOwnerPanel(panelName) {
+  // Update navigation
+  document.querySelectorAll('.owner-nav-item').forEach(item => {
+    item.classList.remove('active');
+  });
+  document.getElementById(`nav-${panelName}`).classList.add('active');
+  
+  // Show panel
+  document.querySelectorAll('.owner-panel').forEach(panel => {
+    panel.classList.add('hidden');
+  });
+  document.getElementById(`owner-${panelName}-panel`).classList.remove('hidden');
+  
+  // Load panel-specific data
+  if (panelName === 'applications') {
+    loadApplications();
+  } else if (panelName === 'suppliers') {
+    loadSuppliers();
+  } else if (panelName === 'analytics') {
+    initializeCharts();
+  }
+}
+
+function showSupplierPanel(panelName) {
+  // Update navigation
+  document.querySelectorAll('.seller-nav-item').forEach(item => {
+    item.classList.remove('active');
+  });
+  
+  // Show panel
+  document.querySelectorAll('.supplier-panel').forEach(panel => {
+    panel.classList.add('hidden');
+  });
+  document.getElementById(`supplier-${panelName}-panel`).classList.remove('hidden');
+}
+
+// Mock data for applications
+function loadApplications() {
+  const applications = [
+    {
+      id: 1,
+      businessName: 'TechCorp Solutions',
+      email: 'contact@techcorp.com',
+      phone: '+1-555-0123',
+      experience: '5-10 years',
+      categories: 'Electronics, Software, Hardware',
+      status: 'pending',
+      submittedAt: new Date(Date.now() - 2 * 60 * 60 * 1000) // 2 hours ago
+    },
+    {
+      id: 2,
+      businessName: 'Fashion Plus Ltd',
+      email: 'info@fashionplus.com',
+      phone: '+1-555-0456',
+      experience: '2-5 years',
+      categories: 'Fashion, Accessories, Lifestyle',
+      status: 'pending',
+      submittedAt: new Date(Date.now() - 15 * 60 * 1000) // 15 minutes ago
+    },
+    {
+      id: 3,
+      businessName: 'Green Garden Co',
+      email: 'sales@greengarden.com',
+      phone: '+1-555-0789',
+      experience: '10+ years',
+      categories: 'Home & Garden, Plants, Tools',
+      status: 'approved',
+      submittedAt: new Date(Date.now() - 24 * 60 * 60 * 1000) // 1 day ago
+    }
+  ];
+  
+  renderApplications(applications);
+}
+
+function renderApplications(applications) {
+  const container = document.getElementById('applications-container');
+  
+  container.innerHTML = applications.map(app => `
+    <div class="application-card ${app.status === 'pending' ? 'new' : ''}">
+      <div class="flex justify-between items-start mb-4">
+        <div>
+          <h4 class="text-xl font-bold text-yellow-400">${app.businessName}</h4>
+          <p class="text-gray-400">${app.email} • ${app.phone}</p>
+        </div>
+        <span class="status-${app.status}">${app.status.toUpperCase()}</span>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <strong>Experience:</strong> ${app.experience}
+        </div>
+        <div>
+          <strong>Submitted:</strong> ${app.submittedAt.toLocaleString()}
+        </div>
+      </div>
+      
+      <div class="mb-4">
+        <strong>Categories:</strong> ${app.categories}
+      </div>
+      
+      ${app.status === 'pending' ? `
+        <div class="flex space-x-3">
+          <button class="btn-success btn-compact" onclick="approveApplication(${app.id})">
+            <i class="fas fa-check mr-2"></i>Approve
+          </button>
+          <button class="btn-danger btn-compact" onclick="rejectApplication(${app.id})">
+            <i class="fas fa-times mr-2"></i>Reject
+          </button>
+          <button class="btn-secondary btn-compact" onclick="viewApplication(${app.id})">
+            <i class="fas fa-eye mr-2"></i>View Details
+          </button>
+        </div>
+      ` : ''}
+    </div>
+  `).join('');
+}
+
+function approveApplication(id) {
+  showNotification(`Application #${id} approved successfully!`, 'success');
+  // Reload applications
+  loadApplications();
+}
+
+function rejectApplication(id) {
+  showNotification(`Application #${id} rejected.`, 'warning');
+  // Reload applications
+  loadApplications();
+}
+
+function refreshApplications() {
+  showNotification('Applications refreshed.', 'success');
+  loadApplications();
+}
+
+// Mock data for suppliers
+function loadSuppliers() {
+  const suppliers = [
+    {
+      id: 1,
+      name: 'TechCorp Inc.',
+      email: 'contact@techcorp.com',
+      status: 'active',
+      products: 45,
+      rating: 4.8,
+      revenue: '$12,450'
+    },
+    {
+      id: 2,
+      name: 'Fashion World',
+      email: 'info@fashionworld.com',
+      status: 'active',
+      products: 32,
+      rating: 4.6,
+      revenue: '$8,920'
+    },
+    {
+      id: 3,
+      name: 'Home Essentials',
+      email: 'sales@homeessentials.com',
+      status: 'suspended',
+      products: 18,
+      rating: 4.2,
+      revenue: '$3,240'
+    }
+  ];
+  
+  renderSuppliers(suppliers);
+}
+
+function renderSuppliers(suppliers) {
+  const tbody = document.getElementById('suppliers-table-body');
+  
+  tbody.innerHTML = suppliers.map(supplier => `
+    <tr>
+      <td>
+        <div>
+          <div class="font-medium">${supplier.name}</div>
+          <div class="text-sm text-gray-400">${supplier.email}</div>
+        </div>
+      </td>
+      <td>
+        <span class="badge badge-${supplier.status === 'active' ? 'success' : 'warning'}">
+          ${supplier.status.toUpperCase()}
+        </span>
+      </td>
+      <td>${supplier.products}</td>
+      <td>
+        <div class="flex items-center">
+          <span class="mr-1">${supplier.rating}</span>
+          <div class="flex text-yellow-400">
+            ${'★'.repeat(Math.floor(supplier.rating))}
+          </div>
+        </div>
+      </td>
+      <td class="font-bold text-green-400">${supplier.revenue}</td>
+      <td>
+        <div class="flex space-x-2">
+          <button class="btn-compact btn-secondary" onclick="viewSupplier(${supplier.id})">
+            <i class="fas fa-eye"></i>
+          </button>
+          <button class="btn-compact btn-warning" onclick="editSupplier(${supplier.id})">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="btn-compact btn-danger" onclick="suspendSupplier(${supplier.id})">
+            <i class="fas fa-ban"></i>
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function exportSuppliers() {
+  showNotification('Suppliers data exported successfully!', 'success');
+}
+
+function refreshSuppliers() {
+  showNotification('Suppliers data refreshed.', 'success');
+  loadSuppliers();
+}
+
+// Chart initialization
+function initializeCharts() {
+  // Revenue Chart
+  const revenueCtx = document.getElementById('revenue-chart');
+  if (revenueCtx) {
+    new Chart(revenueCtx, {
+      type: 'line',
+      data: {
+        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+        datasets: [{
+          label: 'Revenue',
+          data: [12000, 19000, 15000, 25000],
+          borderColor: '#d4af37',
+          backgroundColor: 'rgba(212, 175, 55, 0.1)',
+          tension: 0.4
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            labels: {
+              color: '#fff'
+            }
+          }
+        },
+        scales: {
+          x: {
+            ticks: { color: '#d1d5db' },
+            grid: { color: '#374151' }
+          },
+          y: {
+            ticks: { color: '#d1d5db' },
+            grid: { color: '#374151' }
+          }
+        }
+      }
+    });
+  }
+
+  // Applications Chart
+  const applicationsCtx = document.getElementById('applications-chart');
+  if (applicationsCtx) {
+    new Chart(applicationsCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Approved', 'Pending', 'Rejected'],
+        datasets: [{
+          data: [75, 15, 10],
+          backgroundColor: ['#10b981', '#f59e0b', '#ef4444']
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            labels: {
+              color: '#fff'
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Supplier Growth Chart
+  const supplierGrowthCtx = document.getElementById('supplier-growth-chart');
+  if (supplierGrowthCtx) {
+    new Chart(supplierGrowthCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [{
+          label: 'New Suppliers',
+          data: [3, 5, 2, 8, 6, 4],
+          backgroundColor: '#d4af37'
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            labels: {
+              color: '#fff'
+            }
+          }
+        },
+        scales: {
+          x: {
+            ticks: { color: '#d1d5db' },
+            grid: { color: '#374151' }
+          },
+          y: {
+            ticks: { color: '#d1d5db' },
+            grid: { color: '#374151' }
+          }
+        }
+      }
+    });
+  }
+
+  // Category Chart
+  const categoryCtx = document.getElementById('category-chart');
+  if (categoryCtx) {
+    new Chart(categoryCtx, {
+      type: 'pie',
+      data: {
+        labels: ['Electronics', 'Fashion', 'Home & Garden', 'Sports', 'Books'],
+        datasets: [{
+          data: [30, 25, 20, 15, 10],
+          backgroundColor: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444']
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            labels: {
+              color: '#fff'
+            }
+          }
+        }
+      }
+    });
+  }
+}
+
+// Settings functions
+function updateSecuritySettings() {
+  showNotification('Security settings updated successfully!', 'success');
+}
+
+function resetSecuritySettings() {
+  document.getElementById('session-timeout').value = '30';
+  document.getElementById('max-login-attempts').value = '5';
+  document.getElementById('password-min-length').value = '8';
+  document.getElementById('lockout-duration').value = '15';
+  showNotification('Security settings reset to defaults.', 'success');
+}
+
+function saveSettings() {
+  showNotification('Platform settings saved successfully!', 'success');
+}
+
+function backupSystem() {
+  showNotification('System backup initiated...', 'warning');
+  setTimeout(() => {
+    showNotification('System backup completed successfully!', 'success');
+  }, 3000);
+}
+
+function confirmResetSystem() {
+  if (confirm('Are you sure you want to reset the system? This action cannot be undone.')) {
+    showNotification('System reset initiated. This may take a few minutes...', 'warning');
+  }
+}
+
+function updateAnalytics() {
+  showNotification('Analytics updated for selected period.', 'success');
+}
+
+function exportAnalytics() {
+  showNotification('Analytics report exported successfully!', 'success');
+}
+
+// Additional utility functions
+function filterApplications() {
+  showNotification('Applications filtered.', 'success');
+}
+
+function searchApplications() {
+  // Search functionality would be implemented here
+}
+
+function viewApplication(id) {
+  showNotification(`Viewing application #${id}`, 'success');
+}
+
+function viewSupplier(id) {
+  showNotification(`Viewing supplier #${id}`, 'success');
+}
+
+function editSupplier(id) {
+  showNotification(`Editing supplier #${id}`, 'success');
+}
+
+function suspendSupplier(id) {
+  if (confirm('Are you sure you want to suspend this supplier?')) {
+    showNotification(`Supplier #${id} suspended.`, 'warning');
+    loadSuppliers();
+  }
+}
+
+// ==================== ENHANCED SUPPLIER DASHBOARD CODE ====================
+
+// Enhanced supplier data structure
+const supplierData = {
+  'supplier@demo.com': {
+    businessName: 'Demo Supplier Business',
+    totalRevenue: 12450.75,
+    products: [
+      {
+        id: 1,
+        name: 'Wireless Bluetooth Headphones',
+        price: 79.99,
+        category: 'Electronics',
+        stock: 45,
+        sales: 127,
+        revenue: 10158.73,
+        status: 'active',
+        dateAdded: '2024-01-15',
+        image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=200&fit=crop'
+      },
+      {
+        id: 2,
+        name: 'Smartphone Stand',
+        price: 24.99,
+        category: 'Accessories',
+        stock: 89,
+        sales: 56,
+        revenue: 1399.44,
+        status: 'active',
+        dateAdded: '2024-02-10',
+        image: 'https://images.unsplash.com/photo-1556656793-08538906a9f8?w=300&h=200&fit=crop'
+      },
+      {
+        id: 3,
+        name: 'USB-C Cable 3-Pack',
+        price: 19.99,
+        category: 'Accessories',
+        stock: 156,
+        sales: 203,
+        revenue: 4057.97,
+        status: 'active',
+        dateAdded: '2024-02-20',
+        image: 'https://images.unsplash.com/photo-1591290619762-c588dbc7eac8?w=300&h=200&fit=crop'
+      }
+    ],
+    totalProducts: 3,
+    totalSales: 386,
+    pendingOrders: 8
+  }
+};
+
+// Load supplier dashboard with real-time data
+function loadSupplierDashboard() {
+  if (!currentUser || !currentUser.email) return;
+  
+  const data = supplierData[currentUser.email];
+  if (!data) return;
+
+  document.getElementById('supplier-products-count').textContent = data.totalProducts;
+  document.getElementById('supplier-orders-count').textContent = data.totalSales;
+  document.getElementById('supplier-earnings').textContent = `$${data.totalRevenue.toFixed(2)}`;
+}
+
+// Load and display supplier products
+function loadSupplierProducts() {
+  if (!currentUser || !currentUser.email) return;
+  
+  const data = supplierData[currentUser.email];
+  if (!data) return;
+
+  const container = document.getElementById('supplier-products-list');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="text-2xl font-bold">My Products (${data.totalProducts})</h3>
+      <button class="btn" onclick="showAddProductModal()">
+        <i class="fas fa-plus mr-2"></i>Add New Product ($25)
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      ${data.products.map(product => `
+        <div class="card p-6">
+          <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover rounded-lg mb-4">
+          <div class="mb-4">
+            <h4 class="text-xl font-bold mb-2">${product.name}</h4>
+            <span class="badge badge-info">${product.category}</span>
+          </div>
+          
+          <div class="space-y-2 mb-4">
+            <div class="flex justify-between">
+              <span class="text-gray-400">Price:</span>
+              <span class="text-yellow-400 font-bold">$${product.price}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-400">Stock:</span>
+              <span class="${product.stock < 20 ? 'text-red-400' : 'text-green-400'}">${product.stock} units</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-400">Total Sales:</span>
+              <span class="text-white font-bold">${product.sales}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-400">Revenue:</span>
+              <span class="text-green-400 font-bold">$${product.revenue.toFixed(2)}</span>
+            </div>
+          </div>
+
+          <div class="flex space-x-2">
+            <button class="btn-secondary btn-compact flex-1" onclick="editProduct(${product.id})">
+              <i class="fas fa-edit mr-1"></i>Edit
+            </button>
+            <button class="btn-warning btn-compact flex-1" onclick="manageStock(${product.id})">
+              <i class="fas fa-boxes mr-1"></i>Stock
+            </button>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+// Load supplier earnings with detailed breakdown
+function loadSupplierEarnings() {
+  if (!currentUser || !currentUser.email) return;
+  
+  const data = supplierData[currentUser.email];
+  if (!data) return;
+
+  const container = document.getElementById('supplier-earnings-details');
+  if (!container) return;
+
+  const monthlyRevenue = data.totalRevenue * 0.75;
+  const lastMonthRevenue = data.totalRevenue * 0.25;
+  const growthRate = ((monthlyRevenue - lastMonthRevenue) / lastMonthRevenue * 100).toFixed(1);
+
+  container.innerHTML = `
+    <div class="dashboard-cards mb-8">
+      <div class="dashboard-card">
+        <h3>$${data.totalRevenue.toFixed(2)}</h3>
+        <p>Total Revenue</p>
+        <div class="trend up">
+          <i class="fas fa-arrow-up mr-1"></i>${growthRate}% vs last month
+        </div>
+      </div>
+      <div class="dashboard-card">
+        <h3>$${monthlyRevenue.toFixed(2)}</h3>
+        <p>This Month</p>
+      </div>
+      <div class="dashboard-card">
+        <h3>${data.totalSales}</h3>
+        <p>Total Sales</p>
+      </div>
+      <div class="dashboard-card">
+        <h3>$${(data.totalRevenue / data.totalSales).toFixed(2)}</h3>
+        <p>Avg Order Value</p>
+      </div>
+    </div>
+
+    <div class="card p-6 mb-6">
+      <h3 class="text-xl font-bold mb-4">Revenue by Product</h3>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Sales</th>
+            <th>Revenue</th>
+            <th>% of Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${data.products.map(product => {
+            const percentage = ((product.revenue / data.totalRevenue) * 100).toFixed(1);
+            return `
+              <tr>
+                <td>
+                  <div class="flex items-center">
+                    <img src="${product.image}" alt="${product.name}" class="w-12 h-12 rounded mr-3">
+                    <span class="font-medium">${product.name}</span>
+                  </div>
+                </td>
+                <td>${product.sales}</td>
+                <td class="text-green-400 font-bold">$${product.revenue.toFixed(2)}</td>
+                <td>
+                  <div class="flex items-center">
+                    <div class="w-full bg-gray-700 rounded-full h-2 mr-2">
+                      <div class="bg-yellow-400 h-2 rounded-full" style="width: ${percentage}%"></div>
+                    </div>
+                    <span class="text-sm">${percentage}%</span>
+                  </div>
+                </td>
+              </tr>
+            `;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card p-6">
+      <h3 class="text-xl font-bold mb-4">Payout Information</h3>
+      <div class="space-y-4">
+        <div class="flex justify-between items-center">
+          <span class="text-gray-400">Available Balance:</span>
+          <span class="text-2xl font-bold text-green-400">$${(data.totalRevenue * 0.9).toFixed(2)}</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-gray-400">Pending Clearance:</span>
+          <span class="text-yellow-400">$${(data.totalRevenue * 0.1).toFixed(2)}</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-gray-400">Next Payout Date:</span>
+          <span>November 30, 2025</span>
+        </div>
+        <button class="btn w-full mt-4" onclick="requestPayout()">
+          <i class="fas fa-money-check-alt mr-2"></i>Request Payout
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+// Show add product modal
+function showAddProductModal() {
+  const modal = document.createElement('div');
+  modal.className = 'modal show';
+  modal.id = 'add-product-modal';
+  
+  modal.innerHTML = `
+    <div class="modal-content" style="max-width: 600px;">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-2xl font-bold gradient-gold">Add New Product</h3>
+        <button onclick="closeAddProductModal()" class="text-gray-400 hover:text-white">
+          <i class="fas fa-times text-2xl"></i>
+        </button>
+      </div>
+
+      <div class="notification notification-warning mb-6">
+        <i class="fas fa-info-circle mr-2"></i>
+        <strong>Listing Fee:</strong> $25.00 per product (one-time payment)
+      </div>
+
+      <form id="add-product-form" onsubmit="handleAddProduct(event)">
+        <div class="form-group">
+          <label class="form-label">Product Name *</label>
+          <input type="text" class="input-field" name="productName" required placeholder="e.g., Premium Wireless Earbuds">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Category *</label>
+          <select class="input-field" name="category" required>
+            <option value="">Select Category</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Fashion">Fashion</option>
+            <option value="Home & Garden">Home & Garden</option>
+            <option value="Sports">Sports & Outdoors</option>
+            <option value="Accessories">Accessories</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="form-group">
+            <label class="form-label">Price ($) *</label>
+            <input type="number" class="input-field" name="price" step="0.01" required placeholder="29.99">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Initial Stock *</label>
+            <input type="number" class="input-field" name="stock" required placeholder="100">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description *</label>
+          <textarea class="input-field" name="description" rows="4" required placeholder="Detailed product description..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Product Image URL *</label>
+          <input type="url" class="input-field" name="imageUrl" required placeholder="https://example.com/image.jpg">
+        </div>
+
+        <div class="card p-4 mb-6" style="background: var(--bg-tertiary);">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-gray-400">Product Listing Fee:</span>
+            <span class="text-2xl font-bold text-yellow-400">$25.00</span>
+          </div>
+          <div class="text-xs text-gray-500">
+            <i class="fas fa-shield-alt mr-1"></i>Secure payment processed by Stripe
+          </div>
+        </div>
+
+        <div class="checkbox-container mb-6">
+          <input type="checkbox" id="product-terms" required>
+          <label for="product-terms">I agree to pay $25.00 listing fee and accept the product listing terms</label>
+        </div>
+
+        <div class="flex space-x-3">
+          <button type="submit" class="btn flex-1">
+            <i class="fas fa-credit-card mr-2"></i>Pay $25 & Add Product
+          </button>
+          <button type="button" class="btn-secondary flex-1" onclick="closeAddProductModal()">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+}
+
+// Handle add product with payment
+function handleAddProduct(event) {
+  event.preventDefault();
+  
+  const formData = new FormData(event.target);
+  const productData = Object.fromEntries(formData);
+
+  showNotification('Processing payment of $25.00...', 'warning');
+
+  setTimeout(() => {
+    const data = supplierData[currentUser.email];
+    if (!data) {
+      showNotification('Error: Supplier data not found', 'error');
+      return;
+    }
+    
+    const newProduct = {
+      id: data.products.length + 1,
+      name: productData.productName,
+      price: parseFloat(productData.price),
+      category: productData.category,
+      stock: parseInt(productData.stock),
+      sales: 0,
+      revenue: 0,
+      status: 'active',
+      dateAdded: new Date().toISOString().split('T')[0],
+      image: productData.imageUrl
+    };
+
+    data.products.push(newProduct);
+    data.totalProducts++;
+
+    closeAddProductModal();
+    showNotification(`Product "${productData.productName}" added successfully! Payment of $25.00 processed.`, 'success');
+    
+    loadSupplierProducts();
+    loadSupplierDashboard();
+  }, 2000);
+}
+
+// Close add product modal
+function closeAddProductModal() {
+  const modal = document.getElementById('add-product-modal');
+  if (modal) {
+    modal.remove();
+  }
+}
+
+// Edit product
+function editProduct(productId) {
+  showNotification('Edit product feature - Update price, description, stock!', 'warning');
+}
+
+// Manage stock
+function manageStock(productId) {
+  const data = supplierData[currentUser.email];
+  if (!data) return;
+  
+  const product = data.products.find(p => p.id === productId);
+  if (!product) return;
+
+  const newStock = prompt(`Current stock: ${product.stock} units\n\nEnter new stock quantity:`, product.stock);
+  
+  if (newStock !== null && !isNaN(newStock) && newStock >= 0) {
+    product.stock = parseInt(newStock);
+    showNotification(`Stock updated to ${newStock} units for ${product.name}`, 'success');
+    loadSupplierProducts();
+  }
+}
+
+// Request payout
+function requestPayout() {
+  showNotification('Payout request submitted! Funds will be transferred within 2-3 business days.', 'success');
+}
+
+// Override showSupplierPanel with enhanced version
+const originalShowSupplierPanel = window.showSupplierPanel || function() {};
+window.showSupplierPanel = function(panelName) {
+  document.querySelectorAll('.seller-nav-item').forEach(item => {
+    item.classList.remove('active');
+  });
+  
+  const navItems = document.querySelectorAll('.seller-nav-item');
+  navItems.forEach(item => {
+    if (item.textContent.toLowerCase().includes(panelName)) {
+      item.classList.add('active');
+    }
+  });
+
+  document.querySelectorAll('.supplier-panel').forEach(panel => {
+    panel.classList.add('hidden');
+  });
+  
+  const targetPanel = document.getElementById(`supplier-${panelName}-panel`);
+  if (targetPanel) {
+    targetPanel.classList.remove('hidden');
+  }
+
+  if (panelName === 'dashboard') {
+    loadSupplierDashboard();
+  } else if (panelName === 'products') {
+    loadSupplierProducts();
+  } else if (panelName === 'earnings') {
+    loadSupplierEarnings();
+  }
+};
+
+// Initialize supplier dashboard on login
+const originalLoginSuccess = window.loginSuccess;
+window.loginSuccess = function() {
+  originalLoginSuccess();
+  
+  if (currentUser && currentUser.type === 'supplier') {
+    setTimeout(() => {
+      loadSupplierDashboard();
+    }, 100);
+  }
+};
+
+</script>
+
+</body>
+</html>
