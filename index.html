@@ -296,6 +296,7 @@
   .badge-danger { background: var(--danger-red); color: white; }
   .badge-info { background: #3b82f6; color: white; }
   .badge-gray { background: #6b7280; color: white; }
+  .badge-pending { background: #7c3aed; color: white; }
 
   .status-pending {
     color: var(--warning-orange);
@@ -348,6 +349,12 @@
     background: rgba(239,68,68,0.12);
     border-left-color: var(--danger-red);
     color: #fca5a5;
+  }
+
+  .notification-info {
+    background: rgba(59,130,246,0.12);
+    border-left-color: #3b82f6;
+    color: #93c5fd;
   }
 
   /* Toast notifications */
@@ -674,6 +681,108 @@
   .step.active { background: var(--primary-gold); }
   .step.done { background: var(--success-green); }
 
+  /* =========================================================
+     SELLER PENDING APPROVAL PAGE
+  ========================================================= */
+  .pending-approval-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    background: radial-gradient(ellipse at center, #1a1a1a 0%, #000 100%);
+  }
+
+  .pending-approval-card {
+    background: var(--bg-secondary);
+    border: 2px solid rgba(212,175,55,0.3);
+    border-radius: 20px;
+    padding: 48px 40px;
+    max-width: 580px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 0 60px rgba(212,175,55,0.08);
+    animation: modalSlideIn 0.4s ease;
+  }
+
+  .pending-icon-ring {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(212,175,55,0.15), rgba(212,175,55,0.05));
+    border: 3px solid rgba(212,175,55,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    animation: pendingPulse 2.5s ease-in-out infinite;
+  }
+
+  @keyframes pendingPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(212,175,55,0.4); }
+    50% { box-shadow: 0 0 0 20px rgba(212,175,55,0); }
+  }
+
+  .pending-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 28px 0;
+    text-align: left;
+  }
+
+  .pending-step {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: var(--bg-tertiary);
+    border-radius: 10px;
+    border-left: 4px solid transparent;
+    font-size: 0.9rem;
+  }
+
+  .pending-step.done { border-left-color: var(--success-green); }
+  .pending-step.active { border-left-color: var(--primary-gold); }
+  .pending-step.waiting { border-left-color: #4b5563; }
+
+  .pending-step-icon {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 0.8rem;
+  }
+
+  .pending-step.done .pending-step-icon { background: rgba(16,185,129,0.2); color: var(--success-green); }
+  .pending-step.active .pending-step-icon { background: rgba(212,175,55,0.2); color: var(--primary-gold); }
+  .pending-step.waiting .pending-step-icon { background: rgba(75,85,99,0.3); color: #6b7280; }
+
+  .status-ticker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(245,158,11,0.1);
+    border: 1px solid rgba(245,158,11,0.3);
+    color: #fcd34d;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+
+  .rejected-banner {
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    color: #fca5a5;
+  }
+
   @media (max-width: 768px) {
     .seller-sidebar, .owner-sidebar {
       width: 100%; height: auto;
@@ -685,6 +794,7 @@
     .social-login { grid-template-columns: 1fr; }
     .dashboard-cards { grid-template-columns: 1fr 1fr; }
     .search-filter-bar { flex-direction: column; align-items: stretch; }
+    .pending-approval-card { padding: 32px 20px; }
   }
 
   @media (max-width: 480px) {
@@ -720,7 +830,10 @@
       <div id="user-info" class="hidden flex items-center gap-3">
         <div class="text-right hidden sm:block">
           <div class="text-yellow-400 font-semibold text-sm" id="user-name">Welcome!</div>
-          <div class="text-xs text-gray-400" id="user-role"></div>
+          <div class="text-xs text-gray-400 flex items-center gap-1" id="user-role-wrap">
+            <span id="user-role"></span>
+            <span id="user-status-badge"></span>
+          </div>
         </div>
         <button class="btn-secondary btn-compact" onclick="logout()" style="border-width:1px;">
           <i class="fas fa-sign-out-alt mr-1"></i>Logout
@@ -838,7 +951,95 @@
     </div>
   </section>
 
-  <!-- SUPPLIER DASHBOARD -->
+  <!-- ================================================================
+       SELLER PENDING APPROVAL PAGE
+       Shown when a seller logs in but their account is not yet approved
+  ================================================================ -->
+  <section class="hidden" id="seller-pending">
+    <div class="pending-approval-wrapper">
+      <div class="pending-approval-card">
+
+        <div class="pending-icon-ring">
+          <i class="fas fa-hourglass-half text-4xl text-yellow-400"></i>
+        </div>
+
+        <h2 class="text-3xl font-display font-bold gradient-gold mb-3">Account Under Review</h2>
+
+        <div class="status-ticker" id="pending-status-ticker">
+          <span class="pulse-dot" style="background:var(--warning-orange);"></span>
+          <span>Awaiting Admin Approval</span>
+        </div>
+
+        <p class="text-gray-400 text-sm mb-2 leading-relaxed">
+          Hi <strong class="text-white" id="pending-seller-name">Seller</strong>! Your seller account for
+          <strong class="text-yellow-400" id="pending-business-name">your business</strong> has been received.
+          Our team is reviewing your application.
+        </p>
+        <p class="text-gray-500 text-xs mb-4">
+          You will be notified once approved. Typical review time: <strong class="text-yellow-400">within 24 hours</strong>.
+        </p>
+
+        <!-- Rejected state (hidden by default) -->
+        <div class="rejected-banner hidden" id="rejected-banner">
+          <div class="flex items-center gap-3 mb-2">
+            <i class="fas fa-times-circle text-red-400 text-xl"></i>
+            <strong>Application Not Approved</strong>
+          </div>
+          <p class="text-sm text-gray-400 mb-3">Unfortunately your seller application was not approved at this time. You may re-apply with updated information or contact support.</p>
+          <button class="btn-danger btn-compact" onclick="logout()">
+            <i class="fas fa-sign-out-alt mr-2"></i>Logout & Re-apply
+          </button>
+        </div>
+
+        <!-- Progress steps -->
+        <div class="pending-steps" id="pending-steps-list">
+          <div class="pending-step done">
+            <div class="pending-step-icon"><i class="fas fa-check"></i></div>
+            <div>
+              <div class="font-semibold text-white text-sm">Account Created</div>
+              <div class="text-xs text-gray-400">Registration complete</div>
+            </div>
+          </div>
+          <div class="pending-step active" id="review-step">
+            <div class="pending-step-icon"><i class="fas fa-search"></i></div>
+            <div>
+              <div class="font-semibold text-yellow-400 text-sm">Under Review</div>
+              <div class="text-xs text-gray-400">Admin is reviewing your details</div>
+            </div>
+          </div>
+          <div class="pending-step waiting" id="approval-step">
+            <div class="pending-step-icon"><i class="fas fa-unlock"></i></div>
+            <div>
+              <div class="font-semibold text-gray-400 text-sm">Account Activated</div>
+              <div class="text-xs text-gray-500">Gain full access to seller dashboard</div>
+            </div>
+          </div>
+          <div class="pending-step waiting" id="listing-step">
+            <div class="pending-step-icon"><i class="fas fa-box"></i></div>
+            <div>
+              <div class="font-semibold text-gray-400 text-sm">Start Listing Products</div>
+              <div class="text-xs text-gray-500">Add your products — $25/listing</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-3 flex-col sm:flex-row">
+          <button class="btn-secondary btn-compact flex-1" onclick="checkApprovalStatus()">
+            <i class="fas fa-sync-alt mr-2"></i>Check My Status
+          </button>
+          <button class="btn-danger btn-compact flex-1" onclick="logout()">
+            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+          </button>
+        </div>
+
+        <p class="text-xs text-gray-600 mt-5">
+          <i class="fas fa-envelope mr-1"></i>Questions? Email <span class="text-yellow-600">support@millo.com</span>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SUPPLIER DASHBOARD (only shown when approved) -->
   <section class="hidden" id="supplier-dashboard">
     <div class="seller-sidebar">
       <div class="p-5 border-b border-gray-700">
@@ -848,6 +1049,7 @@
           </div>
           <h3 class="font-bold text-yellow-400 text-sm" id="sidebar-supplier-name">Supplier</h3>
           <p class="text-xs text-gray-400 mt-1" id="sidebar-supplier-status">Active Seller</p>
+          <span class="badge badge-success mt-2" style="font-size:0.65rem;">APPROVED</span>
         </div>
       </div>
       <nav class="mt-4">
@@ -874,7 +1076,7 @@
       <div class="supplier-panel" id="supplier-dashboard-panel">
         <h2 class="text-3xl font-bold mb-6">Supplier Dashboard</h2>
         <div class="notification notification-success mb-6">
-          <i class="fas fa-check-circle mr-2"></i>Your supplier account is <strong>approved and active!</strong>
+          <i class="fas fa-check-circle mr-2"></i>Your supplier account is <strong>approved and active!</strong> You can now add products and manage your store.
         </div>
         <div class="dashboard-cards">
           <div class="dashboard-card">
@@ -979,43 +1181,28 @@
             </thead>
             <tbody id="supplier-orders-tbody">
               <tr>
-                <td>#ORD-1041</td>
-                <td>John D.</td>
-                <td>Wireless Headphones</td>
-                <td class="text-green-400 font-bold">$79.99</td>
-                <td class="text-gray-400">Apr 4, 2026</td>
+                <td>#ORD-1041</td><td>John D.</td><td>Wireless Headphones</td>
+                <td class="text-green-400 font-bold">$79.99</td><td class="text-gray-400">Apr 4, 2026</td>
                 <td><span class="status-approved">Delivered</span></td>
               </tr>
               <tr>
-                <td>#ORD-1038</td>
-                <td>Sarah M.</td>
-                <td>USB-C Cable 3-Pack</td>
-                <td class="text-green-400 font-bold">$19.99</td>
-                <td class="text-gray-400">Apr 3, 2026</td>
+                <td>#ORD-1038</td><td>Sarah M.</td><td>USB-C Cable 3-Pack</td>
+                <td class="text-green-400 font-bold">$19.99</td><td class="text-gray-400">Apr 3, 2026</td>
                 <td><span class="status-pending">Processing</span></td>
               </tr>
               <tr>
-                <td>#ORD-1036</td>
-                <td>Alex K.</td>
-                <td>Smartphone Stand</td>
-                <td class="text-green-400 font-bold">$24.99</td>
-                <td class="text-gray-400">Apr 2, 2026</td>
+                <td>#ORD-1036</td><td>Alex K.</td><td>Smartphone Stand</td>
+                <td class="text-green-400 font-bold">$24.99</td><td class="text-gray-400">Apr 2, 2026</td>
                 <td><span class="status-approved">Shipped</span></td>
               </tr>
               <tr>
-                <td>#ORD-1031</td>
-                <td>Maria L.</td>
-                <td>Wireless Headphones</td>
-                <td class="text-green-400 font-bold">$79.99</td>
-                <td class="text-gray-400">Mar 31, 2026</td>
+                <td>#ORD-1031</td><td>Maria L.</td><td>Wireless Headphones</td>
+                <td class="text-green-400 font-bold">$79.99</td><td class="text-gray-400">Mar 31, 2026</td>
                 <td><span class="status-approved">Delivered</span></td>
               </tr>
               <tr>
-                <td>#ORD-1028</td>
-                <td>Tom B.</td>
-                <td>USB-C Cable 3-Pack</td>
-                <td class="text-green-400 font-bold">$19.99</td>
-                <td class="text-gray-400">Mar 30, 2026</td>
+                <td>#ORD-1028</td><td>Tom B.</td><td>USB-C Cable 3-Pack</td>
+                <td class="text-green-400 font-bold">$19.99</td><td class="text-gray-400">Mar 30, 2026</td>
                 <td><span class="status-rejected">Cancelled</span></td>
               </tr>
             </tbody>
@@ -1132,6 +1319,10 @@
           <i class="fas fa-clipboard-list mr-3"></i>Applications
           <span class="badge badge-warning ml-2" id="pending-app-badge">3</span>
         </a>
+        <a class="owner-nav-item" id="onav-sellers" onclick="showOwnerPanel('sellers')">
+          <i class="fas fa-store mr-3"></i>Sellers
+          <span class="badge badge-pending ml-2" id="pending-sellers-badge">0</span>
+        </a>
         <a class="owner-nav-item" id="onav-suppliers" onclick="showOwnerPanel('suppliers')">
           <i class="fas fa-handshake mr-3"></i>Suppliers
           <span class="badge badge-info ml-2" id="active-sup-badge">24</span>
@@ -1173,6 +1364,11 @@
             <p>Pending Applications</p>
             <div class="trend up">2 new today</div>
           </div>
+          <div class="dashboard-card" id="owner-pending-sellers-card">
+            <h3 id="pending-sellers-stat">0</h3>
+            <p>Pending Sellers</p>
+            <div class="trend" style="color:var(--warning-orange);">Awaiting approval</div>
+          </div>
           <div class="dashboard-card">
             <h3>$67,430</h3>
             <p>Platform Revenue</p>
@@ -1188,7 +1384,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div class="card p-6">
             <h3 class="text-lg font-bold mb-4"><i class="fas fa-clock mr-2 text-yellow-400"></i>Recent Activity</h3>
-            <div class="space-y-0">
+            <div class="space-y-0" id="owner-activity-feed">
               <div class="flex justify-between items-start py-3 border-b border-gray-700 text-sm">
                 <div class="flex items-start gap-2">
                   <i class="fas fa-check-circle text-green-400 mt-0.5"></i>
@@ -1302,6 +1498,39 @@
         <div id="applications-container"></div>
       </div>
 
+      <!-- =====================================================
+           SELLERS PANEL — approve / reject pending seller signups
+      ===================================================== -->
+      <div class="owner-panel hidden" id="owner-sellers-panel">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-3xl font-bold">Seller Accounts</h2>
+          <div class="flex items-center gap-3">
+            <span class="text-xs text-gray-400"><span class="pulse-dot mr-1"></span>Live</span>
+            <button class="btn btn-compact" onclick="renderSellersPanel()">
+              <i class="fas fa-sync-alt mr-2"></i>Refresh
+            </button>
+          </div>
+        </div>
+
+        <div class="search-filter-bar mb-4">
+          <div class="filter-group">
+            <label class="filter-label">Status</label>
+            <select class="input-field" id="seller-status-filter" onchange="renderSellersPanel()" style="width:160px;">
+              <option value="all">All Sellers</option>
+              <option value="pending">Pending Approval</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
+          <div class="filter-group" style="flex:1;">
+            <label class="filter-label">Search</label>
+            <input type="text" class="input-field" id="seller-search" placeholder="Search by name or email..." oninput="renderSellersPanel()">
+          </div>
+        </div>
+
+        <div id="sellers-panel-container"></div>
+      </div>
+
       <!-- Suppliers Panel -->
       <div class="owner-panel hidden" id="owner-suppliers-panel">
         <div class="flex justify-between items-center mb-6">
@@ -1317,35 +1546,18 @@
         </div>
 
         <div class="dashboard-cards mb-6">
-          <div class="dashboard-card">
-            <h3>24</h3>
-            <p>Active Suppliers</p>
-          </div>
-          <div class="dashboard-card">
-            <h3>4.7</h3>
-            <p>Avg Rating</p>
-          </div>
-          <div class="dashboard-card">
-            <h3>1,247</h3>
-            <p>Total Products</p>
-          </div>
-          <div class="dashboard-card">
-            <h3>$12,450</h3>
-            <p>Monthly Fees</p>
-          </div>
+          <div class="dashboard-card"><h3>24</h3><p>Active Suppliers</p></div>
+          <div class="dashboard-card"><h3>4.7</h3><p>Avg Rating</p></div>
+          <div class="dashboard-card"><h3>1,247</h3><p>Total Products</p></div>
+          <div class="dashboard-card"><h3>$12,450</h3><p>Monthly Fees</p></div>
         </div>
 
         <div class="card" style="overflow:auto;">
           <table class="data-table">
             <thead>
               <tr>
-                <th>Supplier</th>
-                <th>Status</th>
-                <th>Products</th>
-                <th>Rating</th>
-                <th>Revenue</th>
-                <th>Joined</th>
-                <th>Actions</th>
+                <th>Supplier</th><th>Status</th><th>Products</th>
+                <th>Rating</th><th>Revenue</th><th>Joined</th><th>Actions</th>
               </tr>
             </thead>
             <tbody id="suppliers-tbody"></tbody>
@@ -1371,26 +1583,10 @@
         </div>
 
         <div class="dashboard-cards mb-6">
-          <div class="dashboard-card">
-            <h3>$71,250</h3>
-            <p>Total Revenue</p>
-            <div class="trend up"><i class="fas fa-arrow-up mr-1"></i>+22%</div>
-          </div>
-          <div class="dashboard-card">
-            <h3>2,847</h3>
-            <p>Total Orders</p>
-            <div class="trend up"><i class="fas fa-arrow-up mr-1"></i>+8%</div>
-          </div>
-          <div class="dashboard-card">
-            <h3>$25.03</h3>
-            <p>Avg Order</p>
-            <div class="trend up"><i class="fas fa-arrow-up mr-1"></i>+3%</div>
-          </div>
-          <div class="dashboard-card">
-            <h3>1,128</h3>
-            <p>New Customers</p>
-            <div class="trend up"><i class="fas fa-arrow-up mr-1"></i>+18%</div>
-          </div>
+          <div class="dashboard-card"><h3>$71,250</h3><p>Total Revenue</p><div class="trend up"><i class="fas fa-arrow-up mr-1"></i>+22%</div></div>
+          <div class="dashboard-card"><h3>2,847</h3><p>Total Orders</p><div class="trend up"><i class="fas fa-arrow-up mr-1"></i>+8%</div></div>
+          <div class="dashboard-card"><h3>$25.03</h3><p>Avg Order</p><div class="trend up"><i class="fas fa-arrow-up mr-1"></i>+3%</div></div>
+          <div class="dashboard-card"><h3>1,128</h3><p>New Customers</p><div class="trend up"><i class="fas fa-arrow-up mr-1"></i>+18%</div></div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
@@ -1451,31 +1647,19 @@
             <h3 class="text-lg font-bold mb-4"><i class="fas fa-list-alt mr-2 text-yellow-400"></i>Security Log</h3>
             <div id="security-log">
               <div class="security-log-item success">
-                <div>
-                  <div class="font-medium text-sm">Successful admin login</div>
-                  <div class="text-xs text-gray-400">IP: 192.168.1.100</div>
-                </div>
+                <div><div class="font-medium text-sm">Successful admin login</div><div class="text-xs text-gray-400">IP: 192.168.1.100</div></div>
                 <div class="text-xs text-gray-400">2:30 PM</div>
               </div>
               <div class="security-log-item warning">
-                <div>
-                  <div class="font-medium text-sm">Failed login attempt</div>
-                  <div class="text-xs text-gray-400">IP: 203.0.113.195</div>
-                </div>
+                <div><div class="font-medium text-sm">Failed login attempt</div><div class="text-xs text-gray-400">IP: 203.0.113.195</div></div>
                 <div class="text-xs text-gray-400">1:45 PM</div>
               </div>
               <div class="security-log-item success">
-                <div>
-                  <div class="font-medium text-sm">Password changed</div>
-                  <div class="text-xs text-gray-400">User: owner@millo.com</div>
-                </div>
+                <div><div class="font-medium text-sm">Password changed</div><div class="text-xs text-gray-400">User: owner@millo.com</div></div>
                 <div class="text-xs text-gray-400">11:20 AM</div>
               </div>
               <div class="security-log-item danger">
-                <div>
-                  <div class="font-medium text-sm">Unusual access pattern detected</div>
-                  <div class="text-xs text-gray-400">IP: 45.33.32.156 — Blocked</div>
-                </div>
+                <div><div class="font-medium text-sm">Unusual access pattern detected</div><div class="text-xs text-gray-400">IP: 45.33.32.156 — Blocked</div></div>
                 <div class="text-xs text-gray-400">9:05 AM</div>
               </div>
             </div>
@@ -1591,22 +1775,10 @@
         <div class="card p-6 mb-5">
           <h3 class="text-lg font-bold mb-4">System Information</h3>
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-            <div>
-              <div class="text-gray-400 mb-1">Platform Version</div>
-              <div class="font-semibold">v2.1.4</div>
-            </div>
-            <div>
-              <div class="text-gray-400 mb-1">Database</div>
-              <div class="font-semibold">PostgreSQL 14.2</div>
-            </div>
-            <div>
-              <div class="text-gray-400 mb-1">Server Uptime</div>
-              <div class="font-semibold">15d 7h 22m</div>
-            </div>
-            <div>
-              <div class="text-gray-400 mb-1">Last Backup</div>
-              <div class="font-semibold">Today, 3:00 AM</div>
-            </div>
+            <div><div class="text-gray-400 mb-1">Platform Version</div><div class="font-semibold">v2.2.0</div></div>
+            <div><div class="text-gray-400 mb-1">Database</div><div class="font-semibold">PostgreSQL 14.2</div></div>
+            <div><div class="text-gray-400 mb-1">Server Uptime</div><div class="font-semibold">15d 7h 22m</div></div>
+            <div><div class="text-gray-400 mb-1">Last Backup</div><div class="font-semibold">Today, 3:00 AM</div></div>
           </div>
         </div>
 
@@ -1645,9 +1817,9 @@
         <div class="font-bold text-sm">Customer</div>
         <div class="text-xs text-gray-400">Shop products</div>
       </div>
-      <div class="user-type-card" id="utype-supplier" onclick="selectUserType('supplier')">
-        <i class="fas fa-handshake"></i>
-        <div class="font-bold text-sm">Supplier</div>
+      <div class="user-type-card" id="utype-seller" onclick="selectUserType('seller')">
+        <i class="fas fa-store"></i>
+        <div class="font-bold text-sm">Seller</div>
         <div class="text-xs text-gray-400">Sell products</div>
       </div>
       <div class="user-type-card" id="utype-owner" onclick="selectUserType('owner')">
@@ -1730,9 +1902,16 @@
         <label class="form-label">Confirm Password</label>
         <input type="password" class="input-field" id="su-confirm" placeholder="Confirm password" required>
       </div>
-      <div id="su-supplier-fields" class="hidden form-group">
-        <label class="form-label">Business Name</label>
-        <input type="text" class="input-field" id="su-business" placeholder="Your business name">
+      <!-- Seller-specific fields shown only when seller type selected -->
+      <div id="su-seller-fields" class="hidden">
+        <div class="form-group">
+          <label class="form-label">Business Name <span class="text-yellow-400">*</span></label>
+          <input type="text" class="input-field" id="su-business" placeholder="Your business name">
+        </div>
+        <div class="notification notification-info mb-4" style="font-size:0.83rem;">
+          <i class="fas fa-info-circle mr-2"></i>
+          <strong>Seller accounts require admin approval.</strong> After signing up you'll see a pending page until an admin approves your account.
+        </div>
       </div>
       <div class="checkbox-container">
         <input type="checkbox" id="su-terms" required>
@@ -1748,21 +1927,28 @@
       <div class="text-yellow-400 font-semibold text-sm mb-3"><i class="fas fa-flask mr-2"></i>Demo Quick Login</div>
       <div class="demo-account">
         <div>
-          <div class="demo-account-type">Customer</div>
+          <div class="demo-account-type">Customer / Shopper</div>
           <div class="demo-account-info">customer@demo.com / password123</div>
         </div>
         <button class="btn btn-compact" style="padding:4px 10px;font-size:0.75rem;" onclick="quickLogin('customer@demo.com','password123','customer')">Login</button>
       </div>
       <div class="demo-account">
         <div>
-          <div class="demo-account-type">Supplier</div>
-          <div class="demo-account-info">supplier@demo.com / supplier123</div>
+          <div class="demo-account-type">Seller (Approved)</div>
+          <div class="demo-account-info">seller@demo.com / seller123</div>
         </div>
-        <button class="btn btn-compact" style="padding:4px 10px;font-size:0.75rem;" onclick="quickLogin('supplier@demo.com','supplier123','supplier')">Login</button>
+        <button class="btn btn-compact" style="padding:4px 10px;font-size:0.75rem;" onclick="quickLogin('seller@demo.com','seller123','seller')">Login</button>
       </div>
       <div class="demo-account">
         <div>
-          <div class="demo-account-type">Owner</div>
+          <div class="demo-account-type">Seller (Pending)</div>
+          <div class="demo-account-info">pending@demo.com / pending123</div>
+        </div>
+        <button class="btn-warning btn-compact" style="padding:4px 10px;font-size:0.75rem;" onclick="quickLogin('pending@demo.com','pending123','seller')">Login</button>
+      </div>
+      <div class="demo-account">
+        <div>
+          <div class="demo-account-type">Owner / Admin</div>
           <div class="demo-account-info">owner@millo.com / owner123</div>
         </div>
         <button class="btn btn-compact" style="padding:4px 10px;font-size:0.75rem;" onclick="quickLogin('owner@millo.com','owner123','owner')">Login</button>
@@ -1864,54 +2050,49 @@
       </button>
     </div>
 
-    <!-- Step indicators -->
     <div class="step-indicator" id="checkout-steps">
       <div class="step active" id="step-1"></div>
       <div class="step" id="step-2"></div>
       <div class="step" id="step-3"></div>
     </div>
 
-    <!-- Step 1: Order Summary -->
     <div id="checkout-step-1">
       <h4 class="font-bold text-lg mb-4">Order Summary</h4>
       <div id="checkout-order-summary" class="card p-4 mb-4" style="background:var(--bg-tertiary);"></div>
-
       <div class="demo-card-hint">
         <div class="flex items-center gap-2 mb-1">
           <i class="fas fa-info-circle text-yellow-400"></i>
           <span class="text-yellow-400 font-semibold text-sm">Demo Mode Active</span>
         </div>
-        <p class="text-xs text-gray-400">This is a demo payment. No real money will be charged. Use any card details in the next step.</p>
+        <p class="text-xs text-gray-400">This is a demo payment. No real money will be charged.</p>
       </div>
-
       <button class="btn w-full py-3" onclick="goToCheckoutStep(2)">
         <i class="fas fa-arrow-right mr-2"></i>Continue to Shipping
       </button>
     </div>
 
-    <!-- Step 2: Shipping -->
     <div id="checkout-step-2" class="hidden">
       <h4 class="font-bold text-lg mb-4">Shipping Information</h4>
       <div class="grid grid-cols-2 gap-4">
         <div class="form-group">
           <label class="form-label">First Name</label>
-          <input type="text" class="input-field" id="ship-fname" placeholder="John" value="Demo">
+          <input type="text" class="input-field" id="ship-fname" value="Demo">
         </div>
         <div class="form-group">
           <label class="form-label">Last Name</label>
-          <input type="text" class="input-field" id="ship-lname" placeholder="Doe" value="Customer">
+          <input type="text" class="input-field" id="ship-lname" value="Customer">
         </div>
         <div class="form-group" style="grid-column:1/-1;">
           <label class="form-label">Address</label>
-          <input type="text" class="input-field" id="ship-address" placeholder="123 Main St" value="123 Demo Street">
+          <input type="text" class="input-field" id="ship-address" value="123 Demo Street">
         </div>
         <div class="form-group">
           <label class="form-label">City</label>
-          <input type="text" class="input-field" id="ship-city" placeholder="New York" value="Demo City">
+          <input type="text" class="input-field" id="ship-city" value="Demo City">
         </div>
         <div class="form-group">
           <label class="form-label">ZIP Code</label>
-          <input type="text" class="input-field" id="ship-zip" placeholder="10001" value="12345">
+          <input type="text" class="input-field" id="ship-zip" value="12345">
         </div>
         <div class="form-group" style="grid-column:1/-1;">
           <label class="form-label">Country</label>
@@ -1933,10 +2114,8 @@
       </div>
     </div>
 
-    <!-- Step 3: Payment -->
     <div id="checkout-step-3" class="hidden">
       <h4 class="font-bold text-lg mb-4">Payment Details</h4>
-
       <div class="demo-card-hint mb-4">
         <div class="flex items-center gap-2 mb-2">
           <i class="fas fa-flask text-yellow-400"></i>
@@ -1948,7 +2127,6 @@
           <div class="text-gray-500">Use any future expiry date and any 3-digit CVV</div>
         </div>
       </div>
-
       <div class="form-group">
         <label class="form-label">Card Number</label>
         <input type="text" class="payment-card-input" id="pay-card" placeholder="4242 4242 4242 4242"
@@ -1957,20 +2135,17 @@
       <div class="grid grid-cols-2 gap-4">
         <div class="form-group">
           <label class="form-label">Expiry Date</label>
-          <input type="text" class="payment-card-input" id="pay-expiry" placeholder="MM/YY"
-            maxlength="5" oninput="formatExpiry(this)" value="12/28">
+          <input type="text" class="payment-card-input" id="pay-expiry" placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)" value="12/28">
         </div>
         <div class="form-group">
           <label class="form-label">CVV</label>
-          <input type="text" class="payment-card-input" id="pay-cvv" placeholder="123"
-            maxlength="4" value="123">
+          <input type="text" class="payment-card-input" id="pay-cvv" placeholder="123" maxlength="4" value="123">
         </div>
       </div>
       <div class="form-group">
         <label class="form-label">Name on Card</label>
         <input type="text" class="input-field" id="pay-name" placeholder="John Doe" value="Demo Customer">
       </div>
-
       <div class="card p-4 mb-4" style="background:var(--bg-tertiary);">
         <div class="flex justify-between text-sm mb-1">
           <span class="text-gray-400">Order Total:</span>
@@ -1980,7 +2155,6 @@
           <i class="fas fa-lock text-green-400"></i>256-bit SSL encrypted • Demo mode
         </div>
       </div>
-
       <div class="flex gap-3">
         <button class="btn-secondary btn-compact flex-1" onclick="goToCheckoutStep(2)">
           <i class="fas fa-arrow-left mr-2"></i>Back
@@ -1991,7 +2165,6 @@
       </div>
     </div>
 
-    <!-- Success State -->
     <div id="checkout-success" class="hidden text-center py-8">
       <div class="text-6xl mb-4">🎉</div>
       <h3 class="text-2xl font-bold text-green-400 mb-2">Order Placed!</h3>
@@ -2005,11 +2178,10 @@
         <i class="fas fa-shopping-bag mr-2"></i>Continue Shopping
       </button>
     </div>
-
   </div>
 </div>
 
-<!-- Add Product Modal (Supplier) -->
+<!-- Add Product Modal (Seller) -->
 <div class="modal" id="add-product-modal">
   <div class="modal-content" style="width:580px;">
     <div class="flex justify-between items-center mb-5">
@@ -2018,11 +2190,9 @@
         <i class="fas fa-times text-xl"></i>
       </button>
     </div>
-
     <div class="notification notification-warning mb-5">
       <i class="fas fa-tag mr-2"></i><strong>Listing Fee: $25.00</strong> — one-time payment per product (demo mode)
     </div>
-
     <form id="add-product-form" onsubmit="handleAddProduct(event)">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="form-group md:col-span-2">
@@ -2058,20 +2228,17 @@
           <textarea class="input-field" name="description" rows="3" required placeholder="Detailed product description..."></textarea>
         </div>
       </div>
-
       <div class="card p-4 mt-2 mb-4" style="background:var(--bg-tertiary);">
         <div class="flex justify-between items-center mb-1">
           <span class="text-gray-400">Listing Fee:</span>
           <span class="text-2xl font-bold text-yellow-400">$25.00 <span class="text-sm text-gray-400">(demo)</span></span>
         </div>
-        <p class="text-xs text-gray-500"><i class="fas fa-info-circle mr-1"></i>Payment is simulated. No real charge will occur.</p>
+        <p class="text-xs text-gray-500"><i class="fas fa-info-circle mr-1"></i>Payment is simulated. No real charge.</p>
       </div>
-
       <div class="checkbox-container">
         <input type="checkbox" id="product-terms" required>
         <label for="product-terms">I agree to pay the $25.00 listing fee and accept the product listing terms</label>
       </div>
-
       <div class="flex gap-3 mt-4">
         <button type="submit" class="btn flex-1 py-3">
           <i class="fas fa-credit-card mr-2"></i>Pay $25 & List Product (Demo)
@@ -2122,59 +2289,130 @@ let pendingConfirmAction = null;
 let chartInstances = {};
 
 // ===============================================================
+// USER DATABASE (localStorage-backed)
+// ===============================================================
+// Seed initial demo users if first load
+function initUserDB() {
+  if (!localStorage.getItem('milloUsers')) {
+    const seed = {
+      'customer@demo.com': {
+        password: 'password123', type: 'customer',
+        name: 'Demo Customer', email: 'customer@demo.com'
+      },
+      'seller@demo.com': {
+        password: 'seller123', type: 'seller',
+        name: 'Demo Seller', email: 'seller@demo.com',
+        businessName: 'Demo Seller Store', status: 'approved'
+      },
+      'pending@demo.com': {
+        password: 'pending123', type: 'seller',
+        name: 'Pending Seller', email: 'pending@demo.com',
+        businessName: 'Pending Business Co.', status: 'pending'
+      },
+      'owner@millo.com': {
+        password: 'owner123', type: 'owner',
+        name: 'Platform Owner', email: 'owner@millo.com', role: 'Administrator'
+      }
+    };
+    localStorage.setItem('milloUsers', JSON.stringify(seed));
+  }
+}
+
+function getUsers() {
+  try { return JSON.parse(localStorage.getItem('milloUsers')) || {}; }
+  catch(e) { return {}; }
+}
+
+function saveUsers(users) {
+  localStorage.setItem('milloUsers', JSON.stringify(users));
+}
+
+function getUser(email) {
+  return getUsers()[email.toLowerCase()] || null;
+}
+
+function upsertUser(email, data) {
+  const users = getUsers();
+  users[email.toLowerCase()] = { ...users[email.toLowerCase()], ...data };
+  saveUsers(users);
+}
+
+// ===============================================================
 // DEMO DATA
 // ===============================================================
-const demoUsers = {
-  'customer@demo.com': { password: 'password123', type: 'customer', name: 'Demo Customer', email: 'customer@demo.com' },
-  'supplier@demo.com': { password: 'supplier123', type: 'supplier', name: 'Demo Supplier', email: 'supplier@demo.com', businessName: 'Demo Supplier Business', status: 'approved' },
-  'owner@millo.com':   { password: 'owner123',    type: 'owner',    name: 'Platform Owner', email: 'owner@millo.com',   role: 'Administrator' }
-};
-
 const allProducts = [
-  { id: 1, name: 'Premium Wireless Headphones', price: 299.99, category: 'Electronics', rating: 4.8, reviews: 124, stock: 45, description: 'High-quality wireless headphones with active noise cancellation and 30-hour battery life.', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=280&fit=crop', supplier: 'TechCorp Inc.' },
-  { id: 2, name: 'Running Shoes Pro', price: 159.99, category: 'Sports', rating: 4.6, reviews: 89, stock: 72, description: 'Lightweight, durable running shoes engineered for peak athletic performance.', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=280&fit=crop', supplier: 'SportZone Ltd.' },
-  { id: 3, name: 'Designer Watch', price: 499.99, category: 'Accessories', rating: 4.9, reviews: 56, stock: 12, description: 'Elegant Swiss-inspired timepiece with sapphire crystal and stainless steel band.', image: 'https://images.unsplash.com/photo-1484704849700-f032a568e944?w=400&h=280&fit=crop', supplier: 'LuxWatch Co.' },
-  { id: 4, name: 'Smart Home Hub', price: 89.99, category: 'Electronics', rating: 4.5, reviews: 203, stock: 130, description: 'Control all your smart home devices with one powerful central hub.', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=280&fit=crop', supplier: 'TechCorp Inc.' },
-  { id: 5, name: 'Leather Tote Bag', price: 129.99, category: 'Fashion', rating: 4.7, reviews: 41, stock: 28, description: 'Genuine leather tote bag, perfect for everyday use or business travel.', image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&h=280&fit=crop', supplier: 'Fashion World' },
-  { id: 6, name: 'Yoga Mat Premium', price: 49.99, category: 'Sports', rating: 4.4, reviews: 178, stock: 95, description: 'Non-slip, eco-friendly yoga mat with extra thickness for joint support.', image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=280&fit=crop', supplier: 'SportZone Ltd.' },
-  { id: 7, name: 'Coffee Maker Deluxe', price: 199.99, category: 'Home', rating: 4.8, reviews: 67, stock: 34, description: 'Programmable coffee maker with built-in grinder and thermal carafe.', image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=280&fit=crop', supplier: 'Home Essentials' },
-  { id: 8, name: 'Wireless Earbuds', price: 79.99, category: 'Electronics', rating: 4.6, reviews: 312, stock: 156, description: 'True wireless earbuds with 24-hour battery life and water resistance.', image: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&h=280&fit=crop', supplier: 'TechCorp Inc.' },
-  { id: 9, name: 'Silk Dress', price: 179.99, category: 'Fashion', rating: 4.5, reviews: 29, stock: 18, description: 'Luxurious 100% mulberry silk dress, available in multiple elegant colors.', image: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=400&h=280&fit=crop', supplier: 'Fashion World' }
+  { id:1, name:'Premium Wireless Headphones', price:299.99, category:'Electronics', rating:4.8, reviews:124, stock:45,
+    description:'High-quality wireless headphones with active noise cancellation and 30-hour battery life.',
+    image:'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=280&fit=crop', supplier:'TechCorp Inc.' },
+  { id:2, name:'Running Shoes Pro', price:159.99, category:'Sports', rating:4.6, reviews:89, stock:72,
+    description:'Lightweight, durable running shoes engineered for peak athletic performance.',
+    image:'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=280&fit=crop', supplier:'SportZone Ltd.' },
+  { id:3, name:'Designer Watch', price:499.99, category:'Accessories', rating:4.9, reviews:56, stock:12,
+    description:'Elegant Swiss-inspired timepiece with sapphire crystal and stainless steel band.',
+    image:'https://images.unsplash.com/photo-1484704849700-f032a568e944?w=400&h=280&fit=crop', supplier:'LuxWatch Co.' },
+  { id:4, name:'Smart Home Hub', price:89.99, category:'Electronics', rating:4.5, reviews:203, stock:130,
+    description:'Control all your smart home devices with one powerful central hub.',
+    image:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=280&fit=crop', supplier:'TechCorp Inc.' },
+  { id:5, name:'Leather Tote Bag', price:129.99, category:'Fashion', rating:4.7, reviews:41, stock:28,
+    description:'Genuine leather tote bag, perfect for everyday use or business travel.',
+    image:'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&h=280&fit=crop', supplier:'Fashion World' },
+  { id:6, name:'Yoga Mat Premium', price:49.99, category:'Sports', rating:4.4, reviews:178, stock:95,
+    description:'Non-slip, eco-friendly yoga mat with extra thickness for joint support.',
+    image:'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=280&fit=crop', supplier:'SportZone Ltd.' },
+  { id:7, name:'Coffee Maker Deluxe', price:199.99, category:'Home', rating:4.8, reviews:67, stock:34,
+    description:'Programmable coffee maker with built-in grinder and thermal carafe.',
+    image:'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=280&fit=crop', supplier:'Home Essentials' },
+  { id:8, name:'Wireless Earbuds', price:79.99, category:'Electronics', rating:4.6, reviews:312, stock:156,
+    description:'True wireless earbuds with 24-hour battery life and water resistance.',
+    image:'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&h=280&fit=crop', supplier:'TechCorp Inc.' },
+  { id:9, name:'Silk Dress', price:179.99, category:'Fashion', rating:4.5, reviews:29, stock:18,
+    description:'Luxurious 100% mulberry silk dress, available in multiple elegant colors.',
+    image:'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=400&h=280&fit=crop', supplier:'Fashion World' }
 ];
 
 const allApplications = [
-  { id: 1, businessName: 'TechCorp Solutions', email: 'contact@techcorp.com', phone: '+1-555-0123', experience: '6-10 years', category: 'Electronics', revenue: '$100k–$500k', reason: 'Expand our global reach and access premium customers.', status: 'pending', submittedAt: new Date(Date.now() - 2*60*60*1000) },
-  { id: 2, businessName: 'Fashion Plus Ltd', email: 'info@fashionplus.com', phone: '+1-555-0456', experience: '2-5 years', category: 'Fashion', revenue: '$50k–$100k', reason: 'Millo has a great community and marketing reach.', status: 'pending', submittedAt: new Date(Date.now() - 15*60*1000) },
-  { id: 3, businessName: 'Green Garden Co', email: 'sales@greengarden.com', phone: '+1-555-0789', experience: '10+ years', category: 'Home', revenue: '$500k+', reason: 'Best platform for home & garden products.', status: 'approved', submittedAt: new Date(Date.now() - 24*60*60*1000) },
-  { id: 4, businessName: 'SportMax Inc', email: 'hello@sportmax.com', phone: '+1-555-1000', experience: '2-5 years', category: 'Sports', revenue: '$0–$50k', reason: 'Growing brand looking for marketplace exposure.', status: 'rejected', submittedAt: new Date(Date.now() - 48*60*60*1000) },
-  { id: 5, businessName: 'Digital Bytes', email: 'team@digitalbytes.io', phone: '+1-555-2000', experience: '0-1 years', category: 'Electronics', revenue: '$0–$50k', reason: 'New startup, want to reach more customers.', status: 'pending', submittedAt: new Date(Date.now() - 5*60*1000) }
+  { id:1, businessName:'TechCorp Solutions', email:'contact@techcorp.com', phone:'+1-555-0123', experience:'6-10 years', category:'Electronics', revenue:'$100k–$500k', reason:'Expand our global reach and access premium customers.', status:'pending', submittedAt:new Date(Date.now()-2*60*60*1000) },
+  { id:2, businessName:'Fashion Plus Ltd', email:'info@fashionplus.com', phone:'+1-555-0456', experience:'2-5 years', category:'Fashion', revenue:'$50k–$100k', reason:'Millo has a great community and marketing reach.', status:'pending', submittedAt:new Date(Date.now()-15*60*1000) },
+  { id:3, businessName:'Green Garden Co', email:'sales@greengarden.com', phone:'+1-555-0789', experience:'10+ years', category:'Home', revenue:'$500k+', reason:'Best platform for home & garden products.', status:'approved', submittedAt:new Date(Date.now()-24*60*60*1000) },
+  { id:4, businessName:'SportMax Inc', email:'hello@sportmax.com', phone:'+1-555-1000', experience:'2-5 years', category:'Sports', revenue:'$0–$50k', reason:'Growing brand looking for marketplace exposure.', status:'rejected', submittedAt:new Date(Date.now()-48*60*60*1000) },
+  { id:5, businessName:'Digital Bytes', email:'team@digitalbytes.io', phone:'+1-555-2000', experience:'0-1 years', category:'Electronics', revenue:'$0–$50k', reason:'New startup, want to reach more customers.', status:'pending', submittedAt:new Date(Date.now()-5*60*1000) }
 ];
 
 const allSuppliers = [
-  { id: 1, name: 'TechCorp Inc.', email: 'contact@techcorp.com', status: 'active', products: 45, rating: 4.8, revenue: '$12,450', joined: 'Jan 2025' },
-  { id: 2, name: 'Fashion World', email: 'info@fashionworld.com', status: 'active', products: 32, rating: 4.6, revenue: '$8,920', joined: 'Feb 2025' },
-  { id: 3, name: 'Home Essentials', email: 'sales@homeessentials.com', status: 'suspended', products: 18, rating: 4.2, revenue: '$3,240', joined: 'Mar 2025' },
-  { id: 4, name: 'SportZone Ltd.', email: 'contact@sportzone.com', status: 'active', products: 27, rating: 4.5, revenue: '$6,780', joined: 'Jan 2025' },
-  { id: 5, name: 'LuxWatch Co.', email: 'info@luxwatch.com', status: 'active', products: 8, rating: 4.9, revenue: '$22,100', joined: 'Dec 2024' }
+  { id:1, name:'TechCorp Inc.', email:'contact@techcorp.com', status:'active', products:45, rating:4.8, revenue:'$12,450', joined:'Jan 2025' },
+  { id:2, name:'Fashion World', email:'info@fashionworld.com', status:'active', products:32, rating:4.6, revenue:'$8,920', joined:'Feb 2025' },
+  { id:3, name:'Home Essentials', email:'sales@homeessentials.com', status:'suspended', products:18, rating:4.2, revenue:'$3,240', joined:'Mar 2025' },
+  { id:4, name:'SportZone Ltd.', email:'contact@sportzone.com', status:'active', products:27, rating:4.5, revenue:'$6,780', joined:'Jan 2025' },
+  { id:5, name:'LuxWatch Co.', email:'info@luxwatch.com', status:'active', products:8, rating:4.9, revenue:'$22,100', joined:'Dec 2024' }
 ];
 
 const supplierProductsData = [
-  { id: 1, name: 'Wireless Bluetooth Headphones', price: 79.99, category: 'Electronics', stock: 45, sales: 127, revenue: 10158.73, status: 'active', dateAdded: '2025-01-15', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=200&fit=crop' },
-  { id: 2, name: 'Smartphone Stand', price: 24.99, category: 'Accessories', stock: 89, sales: 56, revenue: 1399.44, status: 'active', dateAdded: '2025-02-10', image: 'https://images.unsplash.com/photo-1556656793-08538906a9f8?w=400&h=200&fit=crop' },
-  { id: 3, name: 'USB-C Cable 3-Pack', price: 19.99, category: 'Accessories', stock: 14, sales: 203, revenue: 4057.97, status: 'active', dateAdded: '2025-02-20', image: 'https://images.unsplash.com/photo-1591290619762-c588dbc7eac8?w=400&h=200&fit=crop' }
+  { id:1, name:'Wireless Bluetooth Headphones', price:79.99, category:'Electronics', stock:45, sales:127, revenue:10158.73, status:'active', dateAdded:'2025-01-15', image:'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=200&fit=crop' },
+  { id:2, name:'Smartphone Stand', price:24.99, category:'Accessories', stock:89, sales:56, revenue:1399.44, status:'active', dateAdded:'2025-02-10', image:'https://images.unsplash.com/photo-1556656793-08538906a9f8?w=400&h=200&fit=crop' },
+  { id:3, name:'USB-C Cable 3-Pack', price:19.99, category:'Accessories', stock:14, sales:203, revenue:4057.97, status:'active', dateAdded:'2025-02-20', image:'https://images.unsplash.com/photo-1591290619762-c588dbc7eac8?w=400&h=200&fit=crop' }
 ];
 
 // ===============================================================
 // INIT
 // ===============================================================
 document.addEventListener('DOMContentLoaded', () => {
+  initUserDB();
   renderProducts(allProducts);
+  updateOwnerPendingSellersCount();
+
   const saved = localStorage.getItem('milloSession');
   if (saved) {
     try {
-      const { user } = JSON.parse(saved);
-      currentUser = user;
-      afterLogin(false);
+      const { email } = JSON.parse(saved);
+      // Always re-read from DB so status changes are reflected
+      const freshUser = getUser(email);
+      if (freshUser) {
+        currentUser = { ...freshUser };
+        afterLogin(false);
+      } else {
+        localStorage.removeItem('milloSession');
+        showSection('marketplace');
+      }
     } catch(e) {
       localStorage.removeItem('milloSession');
       showSection('marketplace');
@@ -2210,12 +2448,13 @@ function closeModal(id) {
 
 function selectUserType(type) {
   selectedUserType = type;
-  ['customer','supplier','owner'].forEach(t => {
+  ['customer','seller','owner'].forEach(t => {
     document.getElementById(`utype-${t}`)?.classList.toggle('selected', t === type);
   });
-  const isSupplier = type === 'supplier';
-  const isOwner = type === 'owner';
-  document.getElementById('su-supplier-fields')?.classList.toggle('hidden', !isSupplier || currentAuthTab !== 'signup');
+  const isSeller = type === 'seller';
+  const isOwner  = type === 'owner';
+  const suFields = document.getElementById('su-seller-fields');
+  if (suFields) suFields.classList.toggle('hidden', !(isSeller && currentAuthTab === 'signup'));
   document.getElementById('owner-2fa-group')?.classList.toggle('hidden', !(isOwner && currentAuthTab === 'signin'));
 }
 
@@ -2231,74 +2470,89 @@ function switchAuthTab(tab) {
 
 function handleSignIn(e) {
   e.preventDefault();
-  const email = document.getElementById('si-email').value.trim().toLowerCase();
+  const email    = document.getElementById('si-email').value.trim().toLowerCase();
   const password = document.getElementById('si-password').value;
   const remember = document.getElementById('si-remember').checked;
-  const btn = document.getElementById('signin-btn');
+  const btn      = document.getElementById('signin-btn');
 
   btn.innerHTML = '<div class="loading-spinner"></div>Signing in...';
-  btn.disabled = true;
+  btn.disabled  = true;
 
   setTimeout(() => {
-    const user = demoUsers[email];
-    if (user && user.password === password) {
-      if (user.type !== selectedUserType) {
-        showModalAlert(`This email is registered as a <strong>${user.type}</strong>. Please select the correct account type.`, 'warning');
-      } else {
-        currentUser = { ...user };
-        if (remember) localStorage.setItem('milloSession', JSON.stringify({ user: currentUser }));
-        closeModal('login-modal');
-        afterLogin(true);
-      }
-    } else if (user && user.password !== password) {
-      showModalAlert('Incorrect password. Please try again.', 'error');
-    } else {
+    const user = getUser(email);
+
+    if (!user) {
       showModalAlert('No account found with that email. Try a demo account below.', 'error');
+    } else if (user.password !== password) {
+      showModalAlert('Incorrect password. Please try again.', 'error');
+    } else if (user.type !== selectedUserType) {
+      showModalAlert(`This email is registered as a <strong>${user.type}</strong>. Please select the correct account type.`, 'warning');
+    } else {
+      currentUser = { ...user };
+      if (remember) {
+        localStorage.setItem('milloSession', JSON.stringify({ email: currentUser.email }));
+      }
+      closeModal('login-modal');
+      afterLogin(true);
     }
+
     btn.innerHTML = '<i class="fas fa-sign-in-alt mr-2"></i>Sign In';
-    btn.disabled = false;
-  }, 1200);
+    btn.disabled  = false;
+  }, 1000);
 }
 
 function handleSignUp(e) {
   e.preventDefault();
-  const name = document.getElementById('su-name').value.trim();
-  const email = document.getElementById('su-email').value.trim().toLowerCase();
-  const password = document.getElementById('su-password').value;
-  const confirm = document.getElementById('su-confirm').value;
-  const businessName = document.getElementById('su-business')?.value?.trim();
-  const btn = document.getElementById('signup-btn');
+  const name       = document.getElementById('su-name').value.trim();
+  const email      = document.getElementById('su-email').value.trim().toLowerCase();
+  const password   = document.getElementById('su-password').value;
+  const confirm    = document.getElementById('su-confirm').value;
+  const bizName    = document.getElementById('su-business')?.value?.trim();
+  const btn        = document.getElementById('signup-btn');
 
-  if (password !== confirm) return showModalAlert('Passwords do not match.', 'error');
-  if (password.length < 6) return showModalAlert('Password must be at least 6 characters.', 'error');
-  if (demoUsers[email]) return showModalAlert('An account already exists with this email.', 'warning');
+  if (password !== confirm)  return showModalAlert('Passwords do not match.', 'error');
+  if (password.length < 6)   return showModalAlert('Password must be at least 6 characters.', 'error');
+  if (getUser(email))        return showModalAlert('An account already exists with this email.', 'warning');
+  if (selectedUserType === 'seller' && !bizName) return showModalAlert('Please enter your business name.', 'error');
 
   btn.innerHTML = '<div class="loading-spinner"></div>Creating account...';
-  btn.disabled = true;
+  btn.disabled  = true;
 
   setTimeout(() => {
     const newUser = { name, email, password, type: selectedUserType };
-    if (selectedUserType === 'supplier') { newUser.businessName = businessName || name + "'s Business"; newUser.status = 'pending'; }
-    demoUsers[email] = newUser;
 
-    if (selectedUserType === 'supplier') {
-      showModalAlert('Account created! Your supplier application is under review. You will be notified once approved.', 'success');
+    if (selectedUserType === 'seller') {
+      newUser.businessName = bizName;
+      newUser.status = 'pending'; // ← Sellers start as PENDING
+    }
+
+    upsertUser(email, newUser);
+
+    if (selectedUserType === 'seller') {
+      // Auto-sign in as pending seller and show pending page
+      currentUser = { ...newUser };
+      localStorage.setItem('milloSession', JSON.stringify({ email }));
+      closeModal('login-modal');
+      showToast('Account created! Your seller account is awaiting approval. 🕐', 'warning');
+      afterLogin(true);
     } else {
       showModalAlert('Account created! You can now sign in.', 'success');
       switchAuthTab('signin');
       document.getElementById('si-email').value = email;
     }
+
     btn.innerHTML = '<i class="fas fa-user-plus mr-2"></i>Create Account';
-    btn.disabled = false;
+    btn.disabled  = false;
     e.target.reset();
-  }, 1500);
+    selectUserType(selectedUserType); // re-render type cards
+  }, 1200);
 }
 
 function quickLogin(email, password, type) {
   selectedUserType = type;
   selectUserType(type);
   if (currentAuthTab !== 'signin') switchAuthTab('signin');
-  document.getElementById('si-email').value = email;
+  document.getElementById('si-email').value    = email;
   document.getElementById('si-password').value = password;
   setTimeout(() => document.getElementById('signin-form').dispatchEvent(new Event('submit')), 100);
 }
@@ -2312,27 +2566,110 @@ function showForgotPassword(e) {
   showModalAlert('Password reset email sent (demo mode — nothing actually sent). Use demo accounts.', 'warning');
 }
 
+// ===============================================================
+// AFTER LOGIN — routes user to correct section based on type/status
+// ===============================================================
 function afterLogin(isNew) {
+  // Refresh user data from DB (catches approval status changes)
+  if (currentUser && currentUser.email) {
+    const fresh = getUser(currentUser.email);
+    if (fresh) currentUser = { ...fresh };
+  }
+
   // Update header
   document.getElementById('not-logged-in').classList.add('hidden');
   document.getElementById('user-info').classList.remove('hidden');
   document.getElementById('user-name').textContent = currentUser.name;
-  document.getElementById('user-role').textContent = currentUser.type === 'owner' ? 'Administrator' : currentUser.type === 'supplier' ? 'Supplier' : 'Customer';
+
+  const roleLabel = currentUser.type === 'owner' ? 'Administrator'
+    : currentUser.type === 'seller' ? 'Seller'
+    : 'Shopper';
+  document.getElementById('user-role').textContent = roleLabel;
+
+  // Show status badge in header
+  const statusBadge = document.getElementById('user-status-badge');
+  if (currentUser.type === 'seller') {
+    if (currentUser.status === 'pending') {
+      statusBadge.innerHTML = '<span class="badge badge-warning" style="font-size:0.6rem;">PENDING</span>';
+    } else if (currentUser.status === 'approved') {
+      statusBadge.innerHTML = '<span class="badge badge-success" style="font-size:0.6rem;">APPROVED</span>';
+    } else if (currentUser.status === 'rejected') {
+      statusBadge.innerHTML = '<span class="badge badge-danger" style="font-size:0.6rem;">REJECTED</span>';
+    }
+  } else {
+    statusBadge.innerHTML = '';
+  }
 
   if (isNew) showToast(`Welcome, ${currentUser.name}! 👋`, 'success');
 
-  if (currentUser.type === 'supplier') {
-    document.getElementById('sidebar-supplier-name').textContent = currentUser.businessName || currentUser.name;
-    showSection('supplier-dashboard');
-    showSupplierPanel('dashboard');
+  if (currentUser.type === 'seller') {
+    if (currentUser.status === 'approved') {
+      // Full seller dashboard
+      document.getElementById('sidebar-supplier-name').textContent = currentUser.businessName || currentUser.name;
+      document.getElementById('sidebar-supplier-status').textContent = 'Active Seller';
+      showSection('supplier-dashboard');
+      showSupplierPanel('dashboard');
+    } else if (currentUser.status === 'rejected') {
+      // Show pending page with rejected banner
+      showPendingPage(true);
+    } else {
+      // pending — show waiting page
+      showPendingPage(false);
+    }
   } else if (currentUser.type === 'owner') {
     document.getElementById('sidebar-user-name').textContent = currentUser.name;
     document.getElementById('sidebar-session-time').textContent = new Date().toLocaleTimeString();
     document.getElementById('last-login-time').textContent = new Date().toLocaleString();
     showSection('owner-dashboard');
     showOwnerPanel('dashboard');
+    updateOwnerPendingSellersCount();
   } else {
     showSection('marketplace');
+  }
+}
+
+// ===============================================================
+// PENDING PAGE
+// ===============================================================
+function showPendingPage(isRejected) {
+  document.getElementById('pending-seller-name').textContent = currentUser.name || 'Seller';
+  document.getElementById('pending-business-name').textContent = currentUser.businessName || 'your business';
+
+  const rejectedBanner  = document.getElementById('rejected-banner');
+  const pendingSteps    = document.getElementById('pending-steps-list');
+  const statusTicker    = document.getElementById('pending-status-ticker');
+
+  if (isRejected) {
+    rejectedBanner.classList.remove('hidden');
+    pendingSteps.classList.add('hidden');
+    statusTicker.innerHTML = `<i class="fas fa-times-circle" style="color:#ef4444;"></i><span style="color:#fca5a5;">Application Not Approved</span>`;
+    statusTicker.style.background = 'rgba(239,68,68,0.1)';
+    statusTicker.style.borderColor = 'rgba(239,68,68,0.3)';
+  } else {
+    rejectedBanner.classList.add('hidden');
+    pendingSteps.classList.remove('hidden');
+    statusTicker.innerHTML = `<span class="pulse-dot" style="background:var(--warning-orange);"></span><span>Awaiting Admin Approval</span>`;
+    statusTicker.style.background = 'rgba(245,158,11,0.1)';
+    statusTicker.style.borderColor = 'rgba(245,158,11,0.3)';
+  }
+
+  showSection('seller-pending');
+}
+
+function checkApprovalStatus() {
+  // Re-read status from DB (simulates polling)
+  const fresh = getUser(currentUser.email);
+  if (!fresh) return;
+  currentUser = { ...fresh };
+
+  if (currentUser.status === 'approved') {
+    showToast('🎉 Your account has been approved! Welcome to Millo!', 'success');
+    afterLogin(false);
+  } else if (currentUser.status === 'rejected') {
+    showPendingPage(true);
+    showToast('Your application was not approved. Please contact support.', 'error');
+  } else {
+    showToast('Your application is still under review. Please check back soon.', 'warning');
   }
 }
 
@@ -2341,6 +2678,7 @@ function logout() {
   localStorage.removeItem('milloSession');
   document.getElementById('not-logged-in').classList.remove('hidden');
   document.getElementById('user-info').classList.add('hidden');
+  document.getElementById('user-status-badge').innerHTML = '';
   cart = [];
   updateCartBadge();
   showToast('Logged out successfully.', 'success');
@@ -2395,18 +2733,18 @@ function renderProducts(products) {
 
 function filterProducts() {
   const search = document.getElementById('product-search').value.toLowerCase();
-  const cat = document.getElementById('product-category-filter').value;
-  const sort = document.getElementById('product-sort').value;
+  const cat    = document.getElementById('product-category-filter').value;
+  const sort   = document.getElementById('product-sort').value;
 
   let filtered = allProducts.filter(p => {
     const matchSearch = !search || p.name.toLowerCase().includes(search) || p.description.toLowerCase().includes(search);
-    const matchCat = cat === 'all' || p.category === cat;
+    const matchCat    = cat === 'all' || p.category === cat;
     return matchSearch && matchCat;
   });
 
-  if (sort === 'price-low') filtered.sort((a,b) => a.price - b.price);
+  if (sort === 'price-low')  filtered.sort((a,b) => a.price - b.price);
   else if (sort === 'price-high') filtered.sort((a,b) => b.price - a.price);
-  else if (sort === 'rating') filtered.sort((a,b) => b.rating - a.rating);
+  else if (sort === 'rating')     filtered.sort((a,b) => b.rating - a.rating);
 
   renderProducts(filtered);
 }
@@ -2456,7 +2794,7 @@ function updateCartBadge() {
 }
 
 function renderCart() {
-  const list = document.getElementById('cart-items-list');
+  const list    = document.getElementById('cart-items-list');
   const summary = document.getElementById('cart-summary');
   if (!cart.length) {
     list.innerHTML = `<div class="text-center py-12 text-gray-400"><i class="fas fa-shopping-cart text-5xl mb-4 block opacity-30"></i><p class="text-lg">Your cart is empty</p><button class="btn btn-compact mt-4" onclick="showSection('marketplace')"><i class="fas fa-store mr-2"></i>Continue Shopping</button></div>`;
@@ -2482,11 +2820,11 @@ function renderCart() {
     </div>
   `).join('');
 
-  const subtotal = cart.reduce((s,i) => s + i.price * i.qty, 0);
+  const subtotal  = cart.reduce((s,i) => s + i.price * i.qty, 0);
   const itemCount = cart.reduce((s,i) => s + i.qty, 0);
-  document.getElementById('cart-item-count').textContent = itemCount;
-  document.getElementById('cart-subtotal').textContent = `$${subtotal.toFixed(2)}`;
-  document.getElementById('cart-total').textContent = `$${subtotal.toFixed(2)}`;
+  document.getElementById('cart-item-count').textContent  = itemCount;
+  document.getElementById('cart-subtotal').textContent    = `$${subtotal.toFixed(2)}`;
+  document.getElementById('cart-total').textContent       = `$${subtotal.toFixed(2)}`;
   summary.classList.remove('hidden');
 }
 
@@ -2503,9 +2841,8 @@ function proceedToCheckout() {
   if (!currentUser) { showLoginModal(); return; }
   if (!cart.length) return;
 
-  // Build order summary
-  const subtotal = cart.reduce((s,i) => s + i.price * i.qty, 0);
-  const summaryHtml = cart.map(i => `
+  const subtotal     = cart.reduce((s,i) => s + i.price * i.qty, 0);
+  const summaryHtml  = cart.map(i => `
     <div class="flex justify-between items-center py-2 text-sm ${i !== cart[cart.length-1] ? 'border-b border-gray-700' : ''}">
       <span>${i.name} <span class="text-gray-500">×${i.qty}</span></span>
       <span class="text-yellow-400 font-bold">$${(i.price * i.qty).toFixed(2)}</span>
@@ -2519,7 +2856,6 @@ function proceedToCheckout() {
   document.getElementById('checkout-order-summary').innerHTML = summaryHtml;
   document.getElementById('pay-total').textContent = `$${subtotal.toFixed(2)}`;
 
-  // Reset to step 1
   goToCheckoutStep(1, true);
   document.getElementById('checkout-success').classList.add('hidden');
   document.getElementById('checkout-modal').classList.add('show');
@@ -2562,18 +2898,16 @@ function processPayment() {
 
   const btn = document.getElementById('pay-btn');
   btn.innerHTML = '<div class="loading-spinner"></div>Processing...';
-  btn.disabled = true;
+  btn.disabled  = true;
 
   setTimeout(() => {
-    // Check for declining test card
     if (cardNum === '4000000000000002') {
       btn.innerHTML = '<i class="fas fa-lock mr-2"></i>Pay Now (Demo)';
-      btn.disabled = false;
+      btn.disabled  = false;
       showToast('Card declined (test card). Use 4242 4242 4242 4242 instead.', 'error');
       return;
     }
 
-    // Success
     const orderId = 'ORD-' + Math.floor(100000 + Math.random()*900000);
     document.getElementById('order-id').textContent = orderId;
 
@@ -2586,7 +2920,7 @@ function processPayment() {
     showToast(`Order ${orderId} placed successfully! 🎉`, 'success');
 
     btn.innerHTML = '<i class="fas fa-lock mr-2"></i>Pay Now (Demo)';
-    btn.disabled = false;
+    btn.disabled  = false;
   }, 2200);
 }
 
@@ -2601,11 +2935,11 @@ function handleSupplierApplication(e) {
   e.preventDefault();
   const btn = e.target.querySelector('button[type=submit]');
   btn.innerHTML = '<div class="loading-spinner"></div>Submitting...';
-  btn.disabled = true;
+  btn.disabled  = true;
 
   setTimeout(() => {
     const data = new FormData(e.target);
-    const app = {
+    const app  = {
       id: allApplications.length + 1,
       businessName: data.get('businessName'),
       email: data.get('email'),
@@ -2621,15 +2955,15 @@ function handleSupplierApplication(e) {
     updatePendingCount();
 
     closeModal('supplier-application-modal');
-    showToast(`Application submitted! We'll review your application and respond within 24 hours.`, 'success');
+    showToast(`Application submitted! We'll review within 24 hours.`, 'success');
     e.target.reset();
     btn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Submit Application';
-    btn.disabled = false;
+    btn.disabled  = false;
   }, 1500);
 }
 
 // ===============================================================
-// SUPPLIER DASHBOARD
+// SUPPLIER / SELLER DASHBOARD
 // ===============================================================
 function showSupplierPanel(panelName) {
   document.querySelectorAll('.seller-nav-item').forEach(i => i.classList.remove('active'));
@@ -2678,15 +3012,13 @@ function renderSupplierProducts() {
         </div>
       `).join('')}
     </div>`;
-
-  // Update dashboard stat
   document.getElementById('supplier-products-count').textContent = supplierProductsData.length;
 }
 
 function renderSupplierEarnings() {
   const container = document.getElementById('supplier-earnings-content');
   if (!container) return;
-  const totalRev = supplierProductsData.reduce((s,p) => s + p.revenue, 0);
+  const totalRev   = supplierProductsData.reduce((s,p) => s + p.revenue, 0);
   const totalSales = supplierProductsData.reduce((s,p) => s + p.sales, 0);
 
   container.innerHTML = `
@@ -2696,7 +3028,6 @@ function renderSupplierEarnings() {
       <div class="dashboard-card"><h3>${totalSales}</h3><p>Total Sales</p></div>
       <div class="dashboard-card"><h3>$${(totalRev / totalSales).toFixed(2)}</h3><p>Avg Order Value</p></div>
     </div>
-
     <div class="card mb-5" style="overflow:auto;">
       <table class="data-table">
         <thead><tr><th>Product</th><th>Sales</th><th>Revenue</th><th>% of Total</th></tr></thead>
@@ -2713,7 +3044,6 @@ function renderSupplierEarnings() {
         </tbody>
       </table>
     </div>
-
     <div class="card p-6 max-w-md">
       <h3 class="text-lg font-bold mb-4"><i class="fas fa-money-check-alt mr-2 text-yellow-400"></i>Payout Information</h3>
       <div class="space-y-3 text-sm">
@@ -2731,9 +3061,9 @@ function renderSupplierEarnings() {
 function loadSupplierProfile() {
   if (!currentUser) return;
   document.getElementById('profile-business-name').textContent = currentUser.businessName || currentUser.name;
-  document.getElementById('profile-email').textContent = currentUser.email;
-  document.getElementById('pf-business').value = currentUser.businessName || currentUser.name;
-  document.getElementById('pf-email').value = currentUser.email;
+  document.getElementById('profile-email').textContent         = currentUser.email;
+  document.getElementById('pf-business').value                 = currentUser.businessName || currentUser.name;
+  document.getElementById('pf-email').value                    = currentUser.email;
 }
 
 function saveSupplierProfile() {
@@ -2748,9 +3078,9 @@ function openAddProductModal() {
 function handleAddProduct(e) {
   e.preventDefault();
   const data = new FormData(e.target);
-  const btn = e.target.querySelector('button[type=submit]');
+  const btn  = e.target.querySelector('button[type=submit]');
   btn.innerHTML = '<div class="loading-spinner"></div>Processing payment...';
-  btn.disabled = true;
+  btn.disabled  = true;
 
   setTimeout(() => {
     const newProduct = {
@@ -2759,20 +3089,18 @@ function handleAddProduct(e) {
       price: parseFloat(data.get('price')),
       category: data.get('category'),
       stock: parseInt(data.get('stock')),
-      sales: 0,
-      revenue: 0,
-      status: 'active',
+      sales: 0, revenue: 0, status: 'active',
       dateAdded: new Date().toISOString().split('T')[0],
       image: data.get('imageUrl')
     };
     supplierProductsData.push(newProduct);
 
     closeModal('add-product-modal');
-    showToast(`"${newProduct.name}" listed successfully! $25.00 listing fee processed (demo).`, 'success');
+    showToast(`"${newProduct.name}" listed! $25.00 listing fee processed (demo).`, 'success');
     showSupplierPanel('products');
 
     btn.innerHTML = '<i class="fas fa-credit-card mr-2"></i>Pay $25 & List Product (Demo)';
-    btn.disabled = false;
+    btn.disabled  = false;
   }, 2000);
 }
 
@@ -2805,8 +3133,140 @@ function showOwnerPanel(panelName) {
   document.getElementById(`owner-${panelName}-panel`)?.classList.remove('hidden');
 
   if (panelName === 'applications') renderApplications();
+  else if (panelName === 'sellers')  renderSellersPanel();
   else if (panelName === 'suppliers') renderSuppliers();
   else if (panelName === 'analytics') setTimeout(initCharts, 100);
+}
+
+// ----------------------------------------------------------------
+// SELLERS PANEL — owner approves/rejects new seller sign-ups
+// ----------------------------------------------------------------
+function getPendingSellers() {
+  const users = getUsers();
+  return Object.values(users).filter(u => u.type === 'seller');
+}
+
+function updateOwnerPendingSellersCount() {
+  const pendingCount = getPendingSellers().filter(u => u.status === 'pending').length;
+  const badge        = document.getElementById('pending-sellers-badge');
+  const stat         = document.getElementById('pending-sellers-stat');
+  if (badge) badge.textContent = pendingCount;
+  if (stat)  stat.textContent  = pendingCount;
+}
+
+function renderSellersPanel() {
+  const container   = document.getElementById('sellers-panel-container');
+  if (!container) return;
+
+  const statusFilter = document.getElementById('seller-status-filter')?.value || 'all';
+  const search       = (document.getElementById('seller-search')?.value || '').toLowerCase();
+
+  let sellers = getPendingSellers().filter(u => {
+    if (statusFilter !== 'all' && u.status !== statusFilter) return false;
+    if (search && !u.name.toLowerCase().includes(search) && !u.email.toLowerCase().includes(search) && !(u.businessName || '').toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  if (!sellers.length) {
+    container.innerHTML = '<div class="text-center py-12 text-gray-400"><i class="fas fa-store text-4xl mb-3 block opacity-30"></i><p>No sellers match your filter.</p></div>';
+    return;
+  }
+
+  container.innerHTML = sellers.map(seller => `
+    <div class="application-card ${seller.status === 'pending' ? 'pending-card' : ''}">
+      <div class="flex justify-between items-start mb-3">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-full bg-yellow-400 flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-store text-black"></i>
+          </div>
+          <div>
+            <h4 class="text-lg font-bold text-yellow-400">${seller.businessName || seller.name}</h4>
+            <p class="text-gray-400 text-sm">${seller.email}</p>
+            <p class="text-gray-500 text-xs">Registered as: ${seller.name}</p>
+          </div>
+        </div>
+        <span class="status-${seller.status}">${seller.status.toUpperCase()}</span>
+      </div>
+
+      ${seller.status === 'pending' ? `
+        <div class="notification notification-warning mb-3" style="font-size:0.83rem;">
+          <i class="fas fa-hourglass-half mr-2"></i>
+          This seller is waiting for your approval before they can access their dashboard and list products.
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button class="btn-success btn-compact" onclick="approveSeller('${seller.email}')">
+            <i class="fas fa-check mr-1"></i>Approve Seller
+          </button>
+          <button class="btn-danger btn-compact" onclick="rejectSeller('${seller.email}')">
+            <i class="fas fa-times mr-1"></i>Reject
+          </button>
+        </div>
+      ` : seller.status === 'approved' ? `
+        <div class="flex flex-wrap gap-2">
+          <span class="text-green-400 text-sm"><i class="fas fa-check-circle mr-1"></i>Seller is active and can list products</span>
+          <button class="btn-danger btn-compact ml-auto" onclick="rejectSeller('${seller.email}')">
+            <i class="fas fa-ban mr-1"></i>Revoke Access
+          </button>
+        </div>
+      ` : `
+        <div class="flex flex-wrap gap-2">
+          <span class="text-red-400 text-sm"><i class="fas fa-times-circle mr-1"></i>Application rejected</span>
+          <button class="btn-success btn-compact ml-auto" onclick="approveSeller('${seller.email}')">
+            <i class="fas fa-undo mr-1"></i>Re-approve
+          </button>
+        </div>
+      `}
+    </div>
+  `).join('');
+}
+
+function approveSeller(email) {
+  upsertUser(email, { status: 'approved' });
+  updateOwnerPendingSellersCount();
+  renderSellersPanel();
+
+  const user = getUser(email);
+  showToast(`✅ ${user?.businessName || user?.name || email} approved! They can now access their seller dashboard.`, 'success');
+
+  // Add to activity feed
+  addOwnerActivity(`Approved seller: <strong>${user?.businessName || user?.name}</strong>`);
+
+  // If currently logged in as that seller, update their live session too
+  if (currentUser && currentUser.email === email) {
+    currentUser.status = 'approved';
+  }
+}
+
+function rejectSeller(email) {
+  const user = getUser(email);
+  openConfirm(
+    `${user?.status === 'approved' ? 'Revoke' : 'Reject'} ${user?.businessName || user?.name}?`,
+    user?.status === 'approved'
+      ? 'This will suspend their seller access immediately.'
+      : 'Their application will be rejected.',
+    '⚠️',
+    () => {
+      upsertUser(email, { status: 'rejected' });
+      updateOwnerPendingSellersCount();
+      renderSellersPanel();
+      showToast(`${user?.businessName || user?.name} — access rejected.`, 'warning');
+      addOwnerActivity(`Rejected seller: <strong>${user?.businessName || user?.name}</strong>`);
+    }
+  );
+}
+
+function addOwnerActivity(message) {
+  const feed = document.getElementById('owner-activity-feed');
+  if (!feed) return;
+  const item = document.createElement('div');
+  item.className = 'flex justify-between items-start py-3 border-b border-gray-700 text-sm';
+  item.innerHTML = `
+    <div class="flex items-start gap-2">
+      <i class="fas fa-user-check text-yellow-400 mt-0.5"></i>
+      <span>${message}</span>
+    </div>
+    <span class="text-gray-500 flex-shrink-0 ml-2">Just now</span>`;
+  feed.insertBefore(item, feed.firstChild);
 }
 
 // -- Applications --
@@ -2835,9 +3295,7 @@ function renderApplications() {
           <h4 class="text-lg font-bold text-yellow-400">${app.businessName}</h4>
           <p class="text-gray-400 text-sm">${app.email} • ${app.phone}</p>
         </div>
-        <div class="flex items-center gap-2">
-          <span class="status-${app.status}">${app.status.toUpperCase()}</span>
-        </div>
+        <span class="status-${app.status}">${app.status.toUpperCase()}</span>
       </div>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3 text-sm">
         <div><span class="text-gray-500 block text-xs">Category</span><span class="font-medium">${app.category || '—'}</span></div>
@@ -2909,8 +3367,10 @@ function refreshApplications() {
 
 function updatePendingCount() {
   const count = allApplications.filter(a => a.status === 'pending').length;
-  document.getElementById('pending-app-badge').textContent = count;
-  document.getElementById('pending-apps-stat').textContent = count;
+  const badge = document.getElementById('pending-app-badge');
+  const stat  = document.getElementById('pending-apps-stat');
+  if (badge) badge.textContent = count;
+  if (stat)  stat.textContent  = count;
 }
 
 // -- Suppliers --
@@ -2970,20 +3430,20 @@ function exportData(type) {
 // -- Analytics Charts --
 function initCharts() {
   const chartConfig = [
-    { id: 'revenue-chart', type: 'line', labels: ['Week 1','Week 2','Week 3','Week 4','Week 5'],
-      datasets: [{ label:'Revenue ($)', data:[12000,19000,15000,25000,21000], borderColor:'#d4af37', backgroundColor:'rgba(212,175,55,0.1)', tension:0.4, fill:true }] },
-    { id: 'applications-chart', type: 'doughnut', labels: ['Approved','Pending','Rejected'],
-      datasets: [{ data:[75,15,10], backgroundColor:['#10b981','#f59e0b','#ef4444'] }] },
-    { id: 'supplier-growth-chart', type: 'bar', labels: ['Jan','Feb','Mar','Apr','May','Jun'],
-      datasets: [{ label:'New Suppliers', data:[3,5,2,8,6,4], backgroundColor:'#d4af37', borderRadius:4 }] },
-    { id: 'category-chart', type: 'pie', labels: ['Electronics','Fashion','Home & Garden','Sports','Accessories'],
-      datasets: [{ data:[30,25,20,15,10], backgroundColor:['#3b82f6','#8b5cf6','#10b981','#f59e0b','#ef4444'] }] }
+    { id:'revenue-chart', type:'line', labels:['Week 1','Week 2','Week 3','Week 4','Week 5'],
+      datasets:[{ label:'Revenue ($)', data:[12000,19000,15000,25000,21000], borderColor:'#d4af37', backgroundColor:'rgba(212,175,55,0.1)', tension:0.4, fill:true }] },
+    { id:'applications-chart', type:'doughnut', labels:['Approved','Pending','Rejected'],
+      datasets:[{ data:[75,15,10], backgroundColor:['#10b981','#f59e0b','#ef4444'] }] },
+    { id:'supplier-growth-chart', type:'bar', labels:['Jan','Feb','Mar','Apr','May','Jun'],
+      datasets:[{ label:'New Suppliers', data:[3,5,2,8,6,4], backgroundColor:'#d4af37', borderRadius:4 }] },
+    { id:'category-chart', type:'pie', labels:['Electronics','Fashion','Home & Garden','Sports','Accessories'],
+      datasets:[{ data:[30,25,20,15,10], backgroundColor:['#3b82f6','#8b5cf6','#10b981','#f59e0b','#ef4444'] }] }
   ];
 
   chartConfig.forEach(cfg => {
     const canvas = document.getElementById(cfg.id);
     if (!canvas) return;
-    if (chartInstances[cfg.id]) { chartInstances[cfg.id].destroy(); }
+    if (chartInstances[cfg.id]) chartInstances[cfg.id].destroy();
     const options = {
       responsive: true,
       plugins: { legend: { labels: { color:'#d1d5db', font:{ size:11 } } } }
@@ -3009,10 +3469,10 @@ function saveSecuritySettings() {
 }
 
 function resetSecuritySettings() {
-  document.getElementById('session-timeout').value = '30';
-  document.getElementById('max-login-attempts').value = '5';
-  document.getElementById('password-min-length').value = '8';
-  document.getElementById('lockout-duration').value = '15';
+  document.getElementById('session-timeout').value      = '30';
+  document.getElementById('max-login-attempts').value   = '5';
+  document.getElementById('password-min-length').value  = '8';
+  document.getElementById('lockout-duration').value     = '15';
   showToast('Security settings reset to defaults.', 'success');
 }
 
@@ -3036,9 +3496,9 @@ function confirmResetSystem() {
 // CONFIRM DIALOG
 // ===============================================================
 function openConfirm(title, message, icon='⚠️', onConfirm) {
-  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-title').textContent   = title;
   document.getElementById('confirm-message').textContent = message;
-  document.getElementById('confirm-icon').textContent = icon;
+  document.getElementById('confirm-icon').textContent    = icon;
   pendingConfirmAction = onConfirm;
   document.getElementById('confirm-modal').classList.add('show');
 }
@@ -3054,10 +3514,10 @@ function confirmAction() {
 // ===============================================================
 function showToast(message, type='success') {
   const container = document.getElementById('toast-container');
-  const toast = document.createElement('div');
+  const toast     = document.createElement('div');
   toast.className = `toast toast-${type}`;
-  const icons = { success: 'check-circle', warning: 'exclamation-triangle', error: 'times-circle' };
-  const colors = { success: '#10b981', warning: '#f59e0b', error: '#ef4444' };
+  const icons  = { success:'check-circle', warning:'exclamation-triangle', error:'times-circle' };
+  const colors = { success:'#10b981', warning:'#f59e0b', error:'#ef4444' };
   toast.innerHTML = `
     <div class="flex items-start gap-3">
       <i class="fas fa-${icons[type] || 'info-circle'} mt-0.5" style="color:${colors[type]};flex-shrink:0;"></i>
@@ -3075,8 +3535,8 @@ function showToast(message, type='success') {
 // ===============================================================
 function timeAgo(date) {
   const secs = Math.floor((Date.now() - date) / 1000);
-  if (secs < 60) return 'Just now';
-  if (secs < 3600) return Math.floor(secs/60) + ' min ago';
+  if (secs < 60)    return 'Just now';
+  if (secs < 3600)  return Math.floor(secs/60) + ' min ago';
   if (secs < 86400) return Math.floor(secs/3600) + ' hr ago';
   return Math.floor(secs/86400) + ' d ago';
 }
