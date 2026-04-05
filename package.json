@@ -1,0 +1,19 @@
+{
+  "name": "millo-marketplace",
+  "version": "1.0.0",
+  "description": "Millo – Premium Marketplace with Stripe Payments",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["marketplace", "stripe", "payments"],
+  "author": "dmarr1703",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.0",
+    "express": "^5.2.1",
+    "stripe": "^22.0.0"
+  }
+}

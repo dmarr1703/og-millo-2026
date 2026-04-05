@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://js.stripe.com/v3/"></script>
 
 <style>
   :root {
@@ -585,6 +586,35 @@
     padding: 12px;
     margin-bottom: 16px;
   }
+
+  /* Stripe Elements container */
+  #stripe-card-element {
+    background: var(--bg-tertiary);
+    border: 2px solid var(--border-secondary);
+    border-radius: 8px;
+    padding: 14px 16px;
+    transition: border-color 0.3s;
+  }
+  #stripe-card-element.StripeElement--focus {
+    border-color: var(--primary-gold);
+  }
+  #stripe-card-element.StripeElement--invalid {
+    border-color: #ef4444;
+  }
+  #stripe-card-errors {
+    color: #ef4444;
+    font-size: 0.85rem;
+    margin-top: 6px;
+    min-height: 20px;
+  }
+  .stripe-secure-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+    color: #6b7280;
+  }
+  .stripe-secure-badge img { height: 20px; opacity: 0.7; }
 
   /* Search bar */
   .search-filter-bar {
@@ -1449,7 +1479,7 @@
               </div>
               <div class="flex justify-between items-center">
                 <span class="text-gray-400"><i class="fas fa-credit-card mr-2 text-green-400"></i>Payments</span>
-                <span class="badge badge-success">Demo Mode</span>
+                <span class="badge badge-success">Live</span>
               </div>
             </div>
           </div>
@@ -1783,8 +1813,8 @@
             </div>
             <div class="toggle-wrapper border-b border-gray-700 pb-3 mb-3">
               <div class="toggle-info">
-                <div class="font-medium">Demo Payment Mode</div>
-                <div class="text-sm">All payments are simulated (no real charges)</div>
+                <div class="font-medium">Live Payment Mode</div>
+                <div class="text-sm">Payments processed securely via Stripe</div>
               </div>
               <label class="toggle-switch">
                 <input type="checkbox" checked>
@@ -2092,12 +2122,12 @@
     <div id="checkout-step-1">
       <h4 class="font-bold text-lg mb-4">Order Summary</h4>
       <div id="checkout-order-summary" class="card p-4 mb-4" style="background:var(--bg-tertiary);"></div>
-      <div class="demo-card-hint">
-        <div class="flex items-center gap-2 mb-1">
-          <i class="fas fa-info-circle text-yellow-400"></i>
-          <span class="text-yellow-400 font-semibold text-sm">Demo Mode Active</span>
+      <div class="card p-3 mb-4" style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.3);">
+        <div class="flex items-center gap-2">
+          <i class="fas fa-lock text-green-400"></i>
+          <span class="text-green-400 font-semibold text-sm">Secure Checkout — Powered by Stripe</span>
         </div>
-        <p class="text-xs text-gray-400">This is a demo payment. No real money will be charged.</p>
+        <p class="text-xs text-gray-400 mt-1">Your payment is encrypted and processed securely.</p>
       </div>
       <button class="btn w-full py-3" onclick="goToCheckoutStep(2)">
         <i class="fas fa-arrow-right mr-2"></i>Continue to Shipping
@@ -2151,43 +2181,23 @@
     <!-- Step 3: Payment -->
     <div id="checkout-step-3" class="hidden">
       <h4 class="font-bold text-lg mb-4">Payment Details</h4>
-      <div class="demo-card-hint mb-4">
-        <div class="flex items-center gap-2 mb-2">
-          <i class="fas fa-flask text-yellow-400"></i>
-          <span class="text-yellow-400 font-semibold text-sm">Demo Card Numbers</span>
-        </div>
-        <div class="text-xs text-gray-400 space-y-1">
-          <div>✅ <strong class="text-green-400">4242 4242 4242 4242</strong> — Always succeeds</div>
-          <div>❌ <strong class="text-red-400">4000 0000 0000 0002</strong> — Always declines</div>
-          <div class="text-gray-500">Use any future expiry date and any 3-digit CVV</div>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Card Number</label>
-        <input type="text" class="payment-card-input" id="pay-card" placeholder="4242 4242 4242 4242"
-          maxlength="19" oninput="formatCardNumber(this)" value="4242 4242 4242 4242">
-      </div>
-      <div class="grid grid-cols-2 gap-4">
-        <div class="form-group">
-          <label class="form-label">Expiry Date</label>
-          <input type="text" class="payment-card-input" id="pay-expiry" placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)" value="12/28">
-        </div>
-        <div class="form-group">
-          <label class="form-label">CVV</label>
-          <input type="text" class="payment-card-input" id="pay-cvv" placeholder="123" maxlength="4" value="123">
-        </div>
-      </div>
       <div class="form-group">
         <label class="form-label">Name on Card</label>
-        <input type="text" class="input-field" id="pay-name" placeholder="John Doe" value="Demo Customer">
+        <input type="text" class="input-field" id="pay-name" placeholder="Jane Doe">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Card Details</label>
+        <div id="stripe-card-element"></div>
+        <div id="stripe-card-errors" role="alert"></div>
       </div>
       <div class="card p-4 mb-4" style="background:var(--bg-tertiary);">
-        <div class="flex justify-between text-sm mb-1">
+        <div class="flex justify-between text-sm mb-2">
           <span class="text-gray-400">Order Total:</span>
           <span class="text-yellow-400 font-bold text-lg" id="pay-total">$0.00</span>
         </div>
-        <div class="text-xs text-gray-500 flex items-center gap-1">
-          <i class="fas fa-lock text-green-400"></i>256-bit SSL encrypted • Demo mode
+        <div class="stripe-secure-badge">
+          <i class="fas fa-lock text-green-400"></i>
+          <span>256-bit SSL encrypted · Secured by Stripe</span>
         </div>
       </div>
       <div class="flex gap-3">
@@ -2195,7 +2205,7 @@
           <i class="fas fa-arrow-left mr-2"></i>Back
         </button>
         <button class="btn flex-1 py-2" id="pay-btn" onclick="processPayment()">
-          <i class="fas fa-lock mr-2"></i>Pay Now (Demo)
+          <i class="fas fa-lock mr-2"></i>Pay Now
         </button>
       </div>
     </div>
@@ -2203,12 +2213,13 @@
     <!-- Success -->
     <div id="checkout-success" class="hidden text-center py-8">
       <div class="text-6xl mb-4">🎉</div>
-      <h3 class="text-2xl font-bold text-green-400 mb-2">Order Placed!</h3>
-      <p class="text-gray-300 mb-2">Your demo order has been successfully processed.</p>
-      <p class="text-sm text-gray-400 mb-6">Order ID: <strong class="text-yellow-400" id="order-id">—</strong></p>
+      <h3 class="text-2xl font-bold text-green-400 mb-2">Payment Successful!</h3>
+      <p class="text-gray-300 mb-2">Your order has been placed and payment confirmed.</p>
+      <p class="text-sm text-gray-400 mb-2">Order ID: <strong class="text-yellow-400" id="order-id">—</strong></p>
+      <p class="text-sm text-gray-400 mb-6">Payment ID: <strong class="text-green-400 text-xs" id="stripe-payment-id">—</strong></p>
       <div class="notification notification-success mb-4">
         <i class="fas fa-check-circle mr-2"></i>
-        <strong>Demo payment confirmed.</strong> In production this would charge your real card.
+        <strong>Payment confirmed via Stripe.</strong> You will receive a confirmation email shortly.
       </div>
       <button class="btn w-full py-3" onclick="closeModal('checkout-modal'); clearCart();">
         <i class="fas fa-shopping-bag mr-2"></i>Continue Shopping
@@ -2227,7 +2238,7 @@
       </button>
     </div>
     <div class="notification notification-warning mb-5">
-      <i class="fas fa-tag mr-2"></i><strong>Listing Fee: $25.00</strong> — one-time payment per product (demo mode)
+      <i class="fas fa-tag mr-2"></i><strong>Listing Fee: $25.00</strong> — one-time payment per product via Stripe
     </div>
     <form id="add-product-form" onsubmit="handleAddProduct(event)">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -2267,9 +2278,9 @@
       <div class="card p-4 mt-2 mb-4" style="background:var(--bg-tertiary);">
         <div class="flex justify-between items-center mb-1">
           <span class="text-gray-400">Listing Fee:</span>
-          <span class="text-2xl font-bold text-yellow-400">$25.00 <span class="text-sm text-gray-400">(demo)</span></span>
+          <span class="text-2xl font-bold text-yellow-400">$25.00</span>
         </div>
-        <p class="text-xs text-gray-500"><i class="fas fa-info-circle mr-1"></i>Payment is simulated. No real charge.</p>
+        <p class="text-xs text-gray-500"><i class="fas fa-lock text-green-400 mr-1"></i>Secured and processed by Stripe.</p>
       </div>
       <div class="checkbox-container">
         <input type="checkbox" id="product-terms" required>
@@ -2277,7 +2288,7 @@
       </div>
       <div class="flex gap-3 mt-4">
         <button type="submit" class="btn flex-1 py-3">
-          <i class="fas fa-credit-card mr-2"></i>Pay $25 &amp; List Product (Demo)
+          <i class="fas fa-credit-card mr-2"></i>Pay $25 &amp; List Product
         </button>
         <button type="button" class="btn-secondary flex-1 py-3" onclick="closeModal('add-product-modal')">
           Cancel
@@ -2898,56 +2909,143 @@ function goToCheckoutStep(step, init) {
     }
   });
   if (!init) document.getElementById('checkout-success')?.classList.add('hidden');
+  // Mount Stripe card when step 3 is shown
+  if (step === 3) {
+    setTimeout(mountStripeCard, 100);
+  }
 }
 
-function formatCardNumber(input) {
-  let val = input.value.replace(/\D/g,'').substring(0,16);
-  input.value = val.replace(/(.{4})/g,'$1 ').trim();
+// ===============================================================
+// STRIPE PAYMENT INTEGRATION
+// ===============================================================
+
+// Backend URL — auto-detects current host so it works everywhere
+const PAYMENT_API = window.location.origin;
+
+let stripeInstance   = null;
+let stripeCard       = null;
+let stripeCardMounted = false;
+
+async function initStripe() {
+  if (stripeInstance) return;
+  try {
+    const res = await fetch(PAYMENT_API + '/api/config');
+    if (!res.ok) throw new Error('Config fetch failed');
+    const { publishableKey } = await res.json();
+    stripeInstance = Stripe(publishableKey);
+    const elements = stripeInstance.elements({
+      fonts: [{ cssSrc: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap' }]
+    });
+    stripeCard = elements.create('card', {
+      style: {
+        base: {
+          color: '#ffffff',
+          fontFamily: 'Inter, sans-serif',
+          fontSize: '16px',
+          fontSmoothing: 'antialiased',
+          '::placeholder': { color: '#9ca3af' },
+          iconColor: '#d4af37'
+        },
+        invalid: { color: '#ef4444', iconColor: '#ef4444' }
+      },
+      hidePostalCode: false
+    });
+    stripeCard.on('change', event => {
+      const el = document.getElementById('stripe-card-errors');
+      if (el) el.textContent = event.error ? event.error.message : '';
+    });
+  } catch (err) {
+    console.error('[Stripe] Init error:', err.message);
+    showToast('Payment system unavailable. Please try again.', 'error');
+  }
 }
 
-function formatExpiry(input) {
-  let val = input.value.replace(/\D/g,'').substring(0,4);
-  if (val.length >= 3) val = val.substring(0,2) + '/' + val.substring(2);
-  input.value = val;
+function mountStripeCard() {
+  if (!stripeCard || stripeCardMounted) return;
+  const el = document.getElementById('stripe-card-element');
+  if (!el) return;
+  stripeCard.mount('#stripe-card-element');
+  stripeCardMounted = true;
 }
 
-function processPayment() {
-  const cardNum = document.getElementById('pay-card').value.replace(/\s/g,'');
-  const expiry  = document.getElementById('pay-expiry').value;
-  const cvv     = document.getElementById('pay-cvv').value;
-  const name    = document.getElementById('pay-name').value.trim();
+async function processPayment() {
+  if (!stripeInstance || !stripeCard) {
+    showToast('Payment system is loading. Please wait a moment.', 'error');
+    return;
+  }
 
-  if (cardNum.length < 16) return showToast('Please enter a valid 16-digit card number.', 'error');
-  if (expiry.length < 5)   return showToast('Please enter a valid expiry date (MM/YY).', 'error');
-  if (cvv.length < 3)      return showToast('Please enter a valid CVV.', 'error');
-  if (!name)               return showToast('Please enter the name on card.', 'error');
+  const name = document.getElementById('pay-name').value.trim();
+  if (!name) return showToast('Please enter the name on your card.', 'error');
+
+  const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  if (subtotal <= 0) return showToast('Your cart is empty.', 'error');
 
   const btn = document.getElementById('pay-btn');
   btn.innerHTML = '<div class="loading-spinner"></div>Processing...';
   btn.disabled  = true;
 
-  setTimeout(() => {
-    if (cardNum === '4000000000000002') {
-      btn.innerHTML = '<i class="fas fa-lock mr-2"></i>Pay Now (Demo)';
+  try {
+    // 1. Create PaymentIntent on server
+    const piRes = await fetch(PAYMENT_API + '/api/create-payment-intent', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({
+        amount:   subtotal,
+        currency: 'usd',
+        metadata: { items: cart.map(i => i.name).join(', '), buyer: currentUser?.email || 'guest' }
+      })
+    });
+
+    if (!piRes.ok) {
+      const err = await piRes.json();
+      throw new Error(err.error || 'Server error creating payment');
+    }
+
+    const { clientSecret, id: paymentIntentId } = await piRes.json();
+
+    // 2. Confirm payment with Stripe.js
+    const { paymentIntent, error } = await stripeInstance.confirmCardPayment(clientSecret, {
+      payment_method: {
+        card: stripeCard,
+        billing_details: { name }
+      }
+    });
+
+    if (error) {
+      document.getElementById('stripe-card-errors').textContent = error.message;
+      showToast(error.message, 'error');
+      btn.innerHTML = '<i class="fas fa-lock mr-2"></i>Pay Now';
       btn.disabled  = false;
-      showToast('Card declined (test card). Use 4242 4242 4242 4242 instead.', 'error');
       return;
     }
 
-    const orderId = 'ORD-' + Math.floor(100000 + Math.random()*900000);
-    document.getElementById('order-id').textContent = orderId;
+    if (paymentIntent.status === 'succeeded') {
+      // 3. Show success
+      const orderId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
+      document.getElementById('order-id').textContent  = orderId;
+      document.getElementById('stripe-payment-id').textContent = paymentIntent.id;
 
-    [1,2,3].forEach(n => {
-      document.getElementById('checkout-step-' + n)?.classList.add('hidden');
-      const s = document.getElementById('step-' + n);
-      if (s) s.className = 'step done';
-    });
-    document.getElementById('checkout-success').classList.remove('hidden');
-    showToast('Order ' + orderId + ' placed successfully! 🎉', 'success');
+      [1, 2, 3].forEach(n => {
+        document.getElementById('checkout-step-' + n)?.classList.add('hidden');
+        const s = document.getElementById('step-' + n);
+        if (s) s.className = 'step done';
+      });
+      document.getElementById('checkout-success').classList.remove('hidden');
+      showToast('Payment of $' + subtotal.toFixed(2) + ' confirmed! 🎉', 'success');
 
-    btn.innerHTML = '<i class="fas fa-lock mr-2"></i>Pay Now (Demo)';
+      // Unmount card so it can be re-mounted next time
+      stripeCard.unmount();
+      stripeCardMounted = false;
+    } else {
+      throw new Error('Payment status: ' + paymentIntent.status);
+    }
+
+  } catch (err) {
+    console.error('[Payment]', err);
+    showToast('Payment failed: ' + err.message, 'error');
+    btn.innerHTML = '<i class="fas fa-lock mr-2"></i>Pay Now';
     btn.disabled  = false;
-  }, 2200);
+  }
 }
 
 // ===============================================================
@@ -3101,15 +3199,60 @@ function openAddProductModal() {
   document.getElementById('add-product-modal').classList.add('show');
 }
 
-function handleAddProduct(e) {
+async function handleAddProduct(e) {
   e.preventDefault();
   const data = new FormData(e.target);
   const btn  = e.target.querySelector('button[type=submit]');
-  btn.innerHTML = '<div class="loading-spinner"></div>Processing payment...';
+
+  if (!stripeInstance || !stripeCard) {
+    showToast('Payment system is loading. Please wait.', 'error');
+    return;
+  }
+
+  btn.innerHTML = '<div class="loading-spinner"></div>Processing $25 payment...';
   btn.disabled  = true;
 
-  setTimeout(() => {
-    // Build a unique ID that won't collide with existing products
+  try {
+    // 1. Create Payment Intent for the $25 listing fee
+    const piRes = await fetch(PAYMENT_API + '/api/create-payment-intent', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({
+        amount:   25.00,
+        currency: 'usd',
+        metadata: {
+          type:     'listing_fee',
+          product:  data.get('productName') || 'Unknown',
+          seller:   currentUser?.email || 'seller'
+        }
+      })
+    });
+
+    if (!piRes.ok) {
+      const err = await piRes.json();
+      throw new Error(err.error || 'Server error');
+    }
+
+    const { clientSecret } = await piRes.json();
+
+    // 2. Collect card details — show an inline card form for listing fee
+    const nameOnCard = currentUser?.name || 'Seller';
+    const { paymentIntent, error } = await stripeInstance.confirmCardPayment(clientSecret, {
+      payment_method: { card: stripeCard, billing_details: { name: nameOnCard } }
+    });
+
+    if (error) {
+      showToast('Payment failed: ' + error.message, 'error');
+      btn.innerHTML = '<i class="fas fa-credit-card mr-2"></i>Pay $25 & List Product';
+      btn.disabled  = false;
+      return;
+    }
+
+    if (paymentIntent.status !== 'succeeded') {
+      throw new Error('Unexpected payment status: ' + paymentIntent.status);
+    }
+
+    // 3. Payment confirmed — now save the product
     const existingIds = getStoredProducts().map(p => p.id);
     const newId = existingIds.length ? Math.max(...existingIds) + 1 : 1;
 
@@ -3126,25 +3269,26 @@ function handleAddProduct(e) {
       supplier: currentUser?.businessName || currentUser?.name || 'Unknown Supplier'
     };
 
-    // Save to localStorage so it appears in the public marketplace
     const products = getStoredProducts();
     products.push(newProduct);
     saveStoredProducts(products);
-
-    // Also push into the in-memory supplier list so the supplier panel updates
     supplierProductsData.push(newProduct);
-
-    // Refresh the global allProducts array so filterProducts() picks it up
     allProducts = getStoredProducts();
 
     closeModal('add-product-modal');
-    showToast('"' + newProduct.name + '" listed! $25.00 listing fee processed (demo).', 'success');
+    showToast('"' + newProduct.name + '" listed! $25.00 payment confirmed ✓', 'success');
     showSupplierPanel('products');
-    renderProducts(allProducts);   // refresh the public marketplace immediately
+    renderProducts(allProducts);
 
-    btn.innerHTML = '<i class="fas fa-credit-card mr-2"></i>Pay $25 & List Product (Demo)';
+    btn.innerHTML = '<i class="fas fa-credit-card mr-2"></i>Pay $25 & List Product';
     btn.disabled  = false;
-  }, 2000);
+
+  } catch (err) {
+    console.error('[ListingFee]', err);
+    showToast('Payment error: ' + err.message, 'error');
+    btn.innerHTML = '<i class="fas fa-credit-card mr-2"></i>Pay $25 & List Product';
+    btn.disabled  = false;
+  }
 }
 
 function editProduct(id) {
@@ -3721,6 +3865,11 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     document.querySelectorAll('.modal.show').forEach(m => m.classList.remove('show'));
   }
+});
+
+// Initialise Stripe as soon as the page loads
+window.addEventListener('DOMContentLoaded', () => {
+  initStripe().catch(console.error);
 });
 </script>
 </body>
