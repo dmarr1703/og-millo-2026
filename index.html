@@ -1075,9 +1075,9 @@
         </div>
         <div class="dashboard-cards">
           <div class="dashboard-card">
-            <h3 id="supplier-products-count">3</h3>
+            <h3 id="supplier-products-count">0</h3>
             <p>Products Listed</p>
-            <div class="trend up"><i class="fas fa-arrow-up mr-1"></i>+1 this month</div>
+            <div class="trend" style="color:var(--text-secondary);">Add your first product</div>
           </div>
           <div class="dashboard-card">
             <h3 id="supplier-orders-count">386</h3>
@@ -2375,45 +2375,26 @@ function upsertUser(email, data) {
 // ===============================================================
 // DEMO DATA
 // ===============================================================
-const DEFAULT_PRODUCTS = [
-  { id:1, name:'Premium Wireless Headphones', price:299.99, category:'Electronics', rating:4.8, reviews:124, stock:45,
-    description:'High-quality wireless headphones with active noise cancellation and 30-hour battery life.',
-    image:'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=280&fit=crop', supplier:'TechCorp Inc.' },
-  { id:2, name:'Running Shoes Pro', price:159.99, category:'Sports', rating:4.6, reviews:89, stock:72,
-    description:'Lightweight, durable running shoes engineered for peak athletic performance.',
-    image:'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=280&fit=crop', supplier:'SportZone Ltd.' },
-  { id:3, name:'Designer Watch', price:499.99, category:'Accessories', rating:4.9, reviews:56, stock:12,
-    description:'Elegant Swiss-inspired timepiece with sapphire crystal and stainless steel band.',
-    image:'https://images.unsplash.com/photo-1484704849700-f032a568e944?w=400&h=280&fit=crop', supplier:'LuxWatch Co.' },
-  { id:4, name:'Smart Home Hub', price:89.99, category:'Electronics', rating:4.5, reviews:203, stock:130,
-    description:'Control all your smart home devices with one powerful central hub.',
-    image:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=280&fit=crop', supplier:'TechCorp Inc.' },
-  { id:5, name:'Leather Tote Bag', price:129.99, category:'Fashion', rating:4.7, reviews:41, stock:28,
-    description:'Genuine leather tote bag, perfect for everyday use or business travel.',
-    image:'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&h=280&fit=crop', supplier:'Fashion World' },
-  { id:6, name:'Yoga Mat Premium', price:49.99, category:'Sports', rating:4.4, reviews:178, stock:95,
-    description:'Non-slip, eco-friendly yoga mat with extra thickness for joint support.',
-    image:'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=280&fit=crop', supplier:'SportZone Ltd.' },
-  { id:7, name:'Coffee Maker Deluxe', price:199.99, category:'Home', rating:4.8, reviews:67, stock:34,
-    description:'Programmable coffee maker with built-in grinder and thermal carafe.',
-    image:'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=280&fit=crop', supplier:'Home Essentials' },
-  { id:8, name:'Wireless Earbuds', price:79.99, category:'Electronics', rating:4.6, reviews:312, stock:156,
-    description:'True wireless earbuds with 24-hour battery life and water resistance.',
-    image:'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&h=280&fit=crop', supplier:'TechCorp Inc.' },
-  { id:9, name:'Silk Dress', price:179.99, category:'Fashion', rating:4.5, reviews:29, stock:18,
-    description:'Luxurious 100% mulberry silk dress, available in multiple elegant colors.',
-    image:'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=400&h=280&fit=crop', supplier:'Fashion World' }
-];
+// No default products — marketplace starts empty
+const DEFAULT_PRODUCTS = [];
 
 // Products stored in localStorage so owner deletes persist across sessions
 function getStoredProducts() {
   try {
     const stored = localStorage.getItem('milloProducts');
-    if (stored) return JSON.parse(stored);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      // If there are legacy seeded products, clear them so we start empty
+      if (parsed.length > 0 && parsed[0] && parsed[0].id <= 9 && parsed[0].supplier) {
+        localStorage.setItem('milloProducts', JSON.stringify([]));
+        return [];
+      }
+      return parsed;
+    }
   } catch(e) {}
-  // Seed defaults
-  localStorage.setItem('milloProducts', JSON.stringify(DEFAULT_PRODUCTS));
-  return DEFAULT_PRODUCTS.map(p => ({...p}));
+  // Start with empty product list
+  localStorage.setItem('milloProducts', JSON.stringify([]));
+  return [];
 }
 
 function saveStoredProducts(products) {
@@ -2744,7 +2725,7 @@ function clearModalAlert() {
 function renderProducts(products) {
   const container = document.getElementById('products-container');
   if (!products.length) {
-    container.innerHTML = '<div class="text-center py-12 text-gray-400 col-span-full"><i class="fas fa-search text-4xl mb-3 block opacity-30"></i><p>No products match your search.</p></div>';
+    container.innerHTML = '<div class="text-center py-16 text-gray-400 col-span-full"><i class="fas fa-store text-6xl mb-4 block opacity-20"></i><p class="text-xl font-semibold mb-2">No Products Yet</p><p class="text-sm">Products will appear here once suppliers add listings.</p></div>';
     return;
   }
   container.innerHTML = products.map(p => `
