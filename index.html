@@ -3109,21 +3109,38 @@ function handleAddProduct(e) {
   btn.disabled  = true;
 
   setTimeout(() => {
+    // Build a unique ID that won't collide with existing products
+    const existingIds = getStoredProducts().map(p => p.id);
+    const newId = existingIds.length ? Math.max(...existingIds) + 1 : 1;
+
     const newProduct = {
-      id: supplierProductsData.length + 10,
+      id: newId,
       name: data.get('productName'),
       price: parseFloat(data.get('price')),
       category: data.get('category'),
+      description: data.get('description') || '',
       stock: parseInt(data.get('stock')),
       sales: 0, revenue: 0, status: 'active',
       dateAdded: new Date().toISOString().split('T')[0],
-      image: data.get('imageUrl')
+      image: data.get('imageUrl') || '',
+      supplier: currentUser?.businessName || currentUser?.name || 'Unknown Supplier'
     };
+
+    // Save to localStorage so it appears in the public marketplace
+    const products = getStoredProducts();
+    products.push(newProduct);
+    saveStoredProducts(products);
+
+    // Also push into the in-memory supplier list so the supplier panel updates
     supplierProductsData.push(newProduct);
+
+    // Refresh the global allProducts array so filterProducts() picks it up
+    allProducts = getStoredProducts();
 
     closeModal('add-product-modal');
     showToast('"' + newProduct.name + '" listed! $25.00 listing fee processed (demo).', 'success');
     showSupplierPanel('products');
+    renderProducts(allProducts);   // refresh the public marketplace immediately
 
     btn.innerHTML = '<i class="fas fa-credit-card mr-2"></i>Pay $25 & List Product (Demo)';
     btn.disabled  = false;
