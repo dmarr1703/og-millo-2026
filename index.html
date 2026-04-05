@@ -681,9 +681,7 @@
   .step.active { background: var(--primary-gold); }
   .step.done { background: var(--success-green); }
 
-  /* =========================================================
-     SELLER PENDING APPROVAL PAGE
-  ========================================================= */
+  /* Seller pending approval page */
   .pending-approval-wrapper {
     min-height: 100vh;
     display: flex;
@@ -885,7 +883,7 @@
             <option value="all">All Categories</option>
             <option value="Electronics">Electronics</option>
             <option value="Fashion">Fashion</option>
-            <option value="Home">Home & Garden</option>
+            <option value="Home">Home &amp; Garden</option>
             <option value="Sports">Sports</option>
             <option value="Accessories">Accessories</option>
           </select>
@@ -951,10 +949,7 @@
     </div>
   </section>
 
-  <!-- ================================================================
-       SELLER PENDING APPROVAL PAGE
-       Shown when a seller logs in but their account is not yet approved
-  ================================================================ -->
+  <!-- SELLER PENDING APPROVAL PAGE -->
   <section class="hidden" id="seller-pending">
     <div class="pending-approval-wrapper">
       <div class="pending-approval-card">
@@ -979,7 +974,7 @@
           You will be notified once approved. Typical review time: <strong class="text-yellow-400">within 24 hours</strong>.
         </p>
 
-        <!-- Rejected state (hidden by default) -->
+        <!-- Rejected state -->
         <div class="rejected-banner hidden" id="rejected-banner">
           <div class="flex items-center gap-3 mb-2">
             <i class="fas fa-times-circle text-red-400 text-xl"></i>
@@ -987,7 +982,7 @@
           </div>
           <p class="text-sm text-gray-400 mb-3">Unfortunately your seller application was not approved at this time. You may re-apply with updated information or contact support.</p>
           <button class="btn-danger btn-compact" onclick="logout()">
-            <i class="fas fa-sign-out-alt mr-2"></i>Logout & Re-apply
+            <i class="fas fa-sign-out-alt mr-2"></i>Logout &amp; Re-apply
           </button>
         </div>
 
@@ -1000,21 +995,21 @@
               <div class="text-xs text-gray-400">Registration complete</div>
             </div>
           </div>
-          <div class="pending-step active" id="review-step">
+          <div class="pending-step active">
             <div class="pending-step-icon"><i class="fas fa-search"></i></div>
             <div>
               <div class="font-semibold text-yellow-400 text-sm">Under Review</div>
               <div class="text-xs text-gray-400">Admin is reviewing your details</div>
             </div>
           </div>
-          <div class="pending-step waiting" id="approval-step">
+          <div class="pending-step waiting">
             <div class="pending-step-icon"><i class="fas fa-unlock"></i></div>
             <div>
               <div class="font-semibold text-gray-400 text-sm">Account Activated</div>
               <div class="text-xs text-gray-500">Gain full access to seller dashboard</div>
             </div>
           </div>
-          <div class="pending-step waiting" id="listing-step">
+          <div class="pending-step waiting">
             <div class="pending-step-icon"><i class="fas fa-box"></i></div>
             <div>
               <div class="font-semibold text-gray-400 text-sm">Start Listing Products</div>
@@ -1039,7 +1034,7 @@
     </div>
   </section>
 
-  <!-- SUPPLIER DASHBOARD (only shown when approved) -->
+  <!-- SUPPLIER / SELLER DASHBOARD (approved sellers only) -->
   <section class="hidden" id="supplier-dashboard">
     <div class="seller-sidebar">
       <div class="p-5 border-b border-gray-700">
@@ -1106,7 +1101,7 @@
             <h3 class="text-lg font-bold mb-4 flex items-center">
               <i class="fas fa-clock mr-2 text-yellow-400"></i>Recent Activity
             </h3>
-            <div id="supplier-activity-list">
+            <div>
               <div class="flex justify-between py-2 border-b border-gray-700 text-sm">
                 <span>Wireless Headphones sold — $79.99</span>
                 <span class="text-gray-500">30m ago</span>
@@ -1179,7 +1174,7 @@
                 <th>Status</th>
               </tr>
             </thead>
-            <tbody id="supplier-orders-tbody">
+            <tbody>
               <tr>
                 <td>#ORD-1041</td><td>John D.</td><td>Wireless Headphones</td>
                 <td class="text-green-400 font-bold">$79.99</td><td class="text-gray-400">Apr 4, 2026</td>
@@ -1218,7 +1213,7 @@
 
       <!-- Earnings panel -->
       <div class="supplier-panel hidden" id="supplier-earnings-panel">
-        <h2 class="text-3xl font-bold mb-6">Revenue & Earnings</h2>
+        <h2 class="text-3xl font-bold mb-6">Revenue &amp; Earnings</h2>
         <div id="supplier-earnings-content"></div>
       </div>
 
@@ -1232,36 +1227,36 @@
             </div>
             <div>
               <h3 class="text-xl font-bold" id="profile-business-name">Demo Supplier Business</h3>
-              <p class="text-gray-400 text-sm" id="profile-email">supplier@demo.com</p>
+              <p class="text-gray-400 text-sm" id="profile-email">seller@demo.com</p>
               <span class="badge badge-success mt-1">Verified Supplier</span>
             </div>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div class="form-group">
               <label class="form-label">Business Name</label>
-              <input type="text" class="input-field" value="Demo Supplier Business" id="pf-business">
+              <input type="text" class="input-field" id="pf-business" value="Demo Seller Store">
             </div>
             <div class="form-group">
               <label class="form-label">Contact Email</label>
-              <input type="email" class="input-field" value="supplier@demo.com" id="pf-email">
+              <input type="email" class="input-field" id="pf-email" value="seller@demo.com">
             </div>
             <div class="form-group">
               <label class="form-label">Phone Number</label>
-              <input type="tel" class="input-field" value="+1-555-0100" id="pf-phone">
+              <input type="tel" class="input-field" value="+1-555-0100">
             </div>
             <div class="form-group">
               <label class="form-label">Business Category</label>
-              <select class="input-field" id="pf-category">
+              <select class="input-field">
                 <option selected>Electronics</option>
                 <option>Fashion</option>
-                <option>Home & Garden</option>
+                <option>Home &amp; Garden</option>
                 <option>Sports</option>
                 <option>Accessories</option>
               </select>
             </div>
             <div class="form-group md:col-span-2">
               <label class="form-label">Business Description</label>
-              <textarea class="input-field" rows="3" id="pf-desc">Leading supplier of premium electronics and accessories. Trusted by thousands of customers worldwide.</textarea>
+              <textarea class="input-field" rows="3">Leading supplier of premium electronics and accessories. Trusted by thousands of customers worldwide.</textarea>
             </div>
           </div>
           <div class="flex gap-3 mt-4">
@@ -1325,7 +1320,7 @@
         </a>
         <a class="owner-nav-item" id="onav-suppliers" onclick="showOwnerPanel('suppliers')">
           <i class="fas fa-handshake mr-3"></i>Suppliers
-          <span class="badge badge-info ml-2" id="active-sup-badge">24</span>
+          <span class="badge badge-info ml-2">24</span>
         </a>
         <a class="owner-nav-item" id="onav-analytics" onclick="showOwnerPanel('analytics')">
           <i class="fas fa-chart-bar mr-3"></i>Analytics
@@ -1364,7 +1359,7 @@
             <p>Pending Applications</p>
             <div class="trend up">2 new today</div>
           </div>
-          <div class="dashboard-card" id="owner-pending-sellers-card">
+          <div class="dashboard-card">
             <h3 id="pending-sellers-stat">0</h3>
             <p>Pending Sellers</p>
             <div class="trend" style="color:var(--warning-orange);">Awaiting approval</div>
@@ -1384,7 +1379,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div class="card p-6">
             <h3 class="text-lg font-bold mb-4"><i class="fas fa-clock mr-2 text-yellow-400"></i>Recent Activity</h3>
-            <div class="space-y-0" id="owner-activity-feed">
+            <div id="owner-activity-feed">
               <div class="flex justify-between items-start py-3 border-b border-gray-700 text-sm">
                 <div class="flex items-start gap-2">
                   <i class="fas fa-check-circle text-green-400 mt-0.5"></i>
@@ -1486,7 +1481,7 @@
               <option value="all">All Categories</option>
               <option value="Electronics">Electronics</option>
               <option value="Fashion">Fashion</option>
-              <option value="Home">Home & Garden</option>
+              <option value="Home">Home &amp; Garden</option>
             </select>
           </div>
           <div class="filter-group" style="flex:1;">
@@ -1498,9 +1493,7 @@
         <div id="applications-container"></div>
       </div>
 
-      <!-- =====================================================
-           SELLERS PANEL — approve / reject pending seller signups
-      ===================================================== -->
+      <!-- Sellers Panel -->
       <div class="owner-panel hidden" id="owner-sellers-panel">
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-3xl font-bold">Seller Accounts</h2>
@@ -1568,7 +1561,7 @@
       <!-- Analytics Panel -->
       <div class="owner-panel hidden" id="owner-analytics-panel">
         <div class="flex justify-between items-center mb-6">
-          <h2 class="text-3xl font-bold">Analytics & Reports</h2>
+          <h2 class="text-3xl font-bold">Analytics &amp; Reports</h2>
           <div class="flex gap-3">
             <select class="input-field" style="width:160px;" id="analytics-period" onchange="updateCharts()">
               <option value="7">Last 7 Days</option>
@@ -1735,7 +1728,7 @@
                 <div class="text-sm">Automatically approve qualified applications</div>
               </div>
               <label class="toggle-switch">
-                <input type="checkbox" id="toggle-auto-approve" checked>
+                <input type="checkbox" checked>
                 <span class="toggle-slider"></span>
               </label>
             </div>
@@ -1745,7 +1738,7 @@
                 <div class="text-sm">Send email alerts for important events</div>
               </div>
               <label class="toggle-switch">
-                <input type="checkbox" id="toggle-emails" checked>
+                <input type="checkbox" checked>
                 <span class="toggle-slider"></span>
               </label>
             </div>
@@ -1755,7 +1748,7 @@
                 <div class="text-sm">All payments are simulated (no real charges)</div>
               </div>
               <label class="toggle-switch">
-                <input type="checkbox" id="toggle-demo-pay" checked>
+                <input type="checkbox" checked>
                 <span class="toggle-slider"></span>
               </label>
             </div>
@@ -1765,7 +1758,7 @@
                 <div class="text-sm">Put the platform in maintenance mode</div>
               </div>
               <label class="toggle-switch">
-                <input type="checkbox" id="toggle-maintenance">
+                <input type="checkbox">
                 <span class="toggle-slider"></span>
               </label>
             </div>
@@ -1902,7 +1895,7 @@
         <label class="form-label">Confirm Password</label>
         <input type="password" class="input-field" id="su-confirm" placeholder="Confirm password" required>
       </div>
-      <!-- Seller-specific fields shown only when seller type selected -->
+      <!-- Seller-specific fields -->
       <div id="su-seller-fields" class="hidden">
         <div class="form-group">
           <label class="form-label">Business Name <span class="text-yellow-400">*</span></label>
@@ -2014,8 +2007,8 @@
             <option value="">Select category</option>
             <option>Electronics</option>
             <option>Fashion</option>
-            <option>Home & Garden</option>
-            <option>Sports & Outdoors</option>
+            <option>Home &amp; Garden</option>
+            <option>Sports &amp; Outdoors</option>
             <option>Accessories</option>
             <option>Other</option>
           </select>
@@ -2050,12 +2043,13 @@
       </button>
     </div>
 
-    <div class="step-indicator" id="checkout-steps">
+    <div class="step-indicator">
       <div class="step active" id="step-1"></div>
       <div class="step" id="step-2"></div>
       <div class="step" id="step-3"></div>
     </div>
 
+    <!-- Step 1: Order Summary -->
     <div id="checkout-step-1">
       <h4 class="font-bold text-lg mb-4">Order Summary</h4>
       <div id="checkout-order-summary" class="card p-4 mb-4" style="background:var(--bg-tertiary);"></div>
@@ -2071,6 +2065,7 @@
       </button>
     </div>
 
+    <!-- Step 2: Shipping -->
     <div id="checkout-step-2" class="hidden">
       <h4 class="font-bold text-lg mb-4">Shipping Information</h4>
       <div class="grid grid-cols-2 gap-4">
@@ -2114,6 +2109,7 @@
       </div>
     </div>
 
+    <!-- Step 3: Payment -->
     <div id="checkout-step-3" class="hidden">
       <h4 class="font-bold text-lg mb-4">Payment Details</h4>
       <div class="demo-card-hint mb-4">
@@ -2165,6 +2161,7 @@
       </div>
     </div>
 
+    <!-- Success -->
     <div id="checkout-success" class="hidden text-center py-8">
       <div class="text-6xl mb-4">🎉</div>
       <h3 class="text-2xl font-bold text-green-400 mb-2">Order Placed!</h3>
@@ -2205,8 +2202,8 @@
             <option value="">Select Category</option>
             <option>Electronics</option>
             <option>Fashion</option>
-            <option>Home & Garden</option>
-            <option>Sports & Outdoors</option>
+            <option>Home &amp; Garden</option>
+            <option>Sports &amp; Outdoors</option>
             <option>Accessories</option>
             <option>Other</option>
           </select>
@@ -2241,7 +2238,7 @@
       </div>
       <div class="flex gap-3 mt-4">
         <button type="submit" class="btn flex-1 py-3">
-          <i class="fas fa-credit-card mr-2"></i>Pay $25 & List Product (Demo)
+          <i class="fas fa-credit-card mr-2"></i>Pay $25 &amp; List Product (Demo)
         </button>
         <button type="button" class="btn-secondary flex-1 py-3" onclick="closeModal('add-product-modal')">
           Cancel
@@ -2291,7 +2288,6 @@ let chartInstances = {};
 // ===============================================================
 // USER DATABASE (localStorage-backed)
 // ===============================================================
-// Seed initial demo users if first load
 function initUserDB() {
   if (!localStorage.getItem('milloUsers')) {
     const seed = {
@@ -2404,7 +2400,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (saved) {
     try {
       const { email } = JSON.parse(saved);
-      // Always re-read from DB so status changes are reflected
       const freshUser = getUser(email);
       if (freshUser) {
         currentUser = { ...freshUser };
@@ -2427,7 +2422,8 @@ document.addEventListener('DOMContentLoaded', () => {
 // ===============================================================
 function showSection(id) {
   document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
-  document.getElementById(id)?.classList.remove('hidden');
+  const el = document.getElementById(id);
+  if (el) el.classList.remove('hidden');
 }
 
 function scrollToProducts() {
@@ -2449,19 +2445,17 @@ function closeModal(id) {
 function selectUserType(type) {
   selectedUserType = type;
   ['customer','seller','owner'].forEach(t => {
-    document.getElementById(`utype-${t}`)?.classList.toggle('selected', t === type);
+    document.getElementById('utype-' + t)?.classList.toggle('selected', t === type);
   });
-  const isSeller = type === 'seller';
-  const isOwner  = type === 'owner';
   const suFields = document.getElementById('su-seller-fields');
-  if (suFields) suFields.classList.toggle('hidden', !(isSeller && currentAuthTab === 'signup'));
-  document.getElementById('owner-2fa-group')?.classList.toggle('hidden', !(isOwner && currentAuthTab === 'signin'));
+  if (suFields) suFields.classList.toggle('hidden', !(type === 'seller' && currentAuthTab === 'signup'));
+  document.getElementById('owner-2fa-group')?.classList.toggle('hidden', !(type === 'owner' && currentAuthTab === 'signin'));
 }
 
 function switchAuthTab(tab) {
   currentAuthTab = tab;
   document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById(`tab-${tab}`)?.classList.add('active');
+  document.getElementById('tab-' + tab)?.classList.add('active');
   document.getElementById('signin-form')?.classList.toggle('hidden', tab !== 'signin');
   document.getElementById('signup-form')?.classList.toggle('hidden', tab !== 'signup');
   clearModalAlert();
@@ -2486,7 +2480,7 @@ function handleSignIn(e) {
     } else if (user.password !== password) {
       showModalAlert('Incorrect password. Please try again.', 'error');
     } else if (user.type !== selectedUserType) {
-      showModalAlert(`This email is registered as a <strong>${user.type}</strong>. Please select the correct account type.`, 'warning');
+      showModalAlert('This email is registered as a <strong>' + user.type + '</strong>. Please select the correct account type.', 'warning');
     } else {
       currentUser = { ...user };
       if (remember) {
@@ -2503,12 +2497,12 @@ function handleSignIn(e) {
 
 function handleSignUp(e) {
   e.preventDefault();
-  const name       = document.getElementById('su-name').value.trim();
-  const email      = document.getElementById('su-email').value.trim().toLowerCase();
-  const password   = document.getElementById('su-password').value;
-  const confirm    = document.getElementById('su-confirm').value;
-  const bizName    = document.getElementById('su-business')?.value?.trim();
-  const btn        = document.getElementById('signup-btn');
+  const name    = document.getElementById('su-name').value.trim();
+  const email   = document.getElementById('su-email').value.trim().toLowerCase();
+  const password= document.getElementById('su-password').value;
+  const confirm = document.getElementById('su-confirm').value;
+  const bizName = document.getElementById('su-business')?.value?.trim();
+  const btn     = document.getElementById('signup-btn');
 
   if (password !== confirm)  return showModalAlert('Passwords do not match.', 'error');
   if (password.length < 6)   return showModalAlert('Password must be at least 6 characters.', 'error');
@@ -2523,17 +2517,16 @@ function handleSignUp(e) {
 
     if (selectedUserType === 'seller') {
       newUser.businessName = bizName;
-      newUser.status = 'pending'; // ← Sellers start as PENDING
+      newUser.status = 'pending';
     }
 
     upsertUser(email, newUser);
 
     if (selectedUserType === 'seller') {
-      // Auto-sign in as pending seller and show pending page
       currentUser = { ...newUser };
       localStorage.setItem('milloSession', JSON.stringify({ email }));
       closeModal('login-modal');
-      showToast('Account created! Your seller account is awaiting approval. 🕐', 'warning');
+      showToast('Account created! Your seller account is awaiting approval.', 'warning');
       afterLogin(true);
     } else {
       showModalAlert('Account created! You can now sign in.', 'success');
@@ -2544,7 +2537,7 @@ function handleSignUp(e) {
     btn.innerHTML = '<i class="fas fa-user-plus mr-2"></i>Create Account';
     btn.disabled  = false;
     e.target.reset();
-    selectUserType(selectedUserType); // re-render type cards
+    selectUserType(selectedUserType);
   }, 1200);
 }
 
@@ -2558,25 +2551,23 @@ function quickLogin(email, password, type) {
 }
 
 function socialLogin(provider) {
-  showModalAlert(`${provider} OAuth integration coming soon! Use demo accounts for now.`, 'warning');
+  showModalAlert(provider + ' OAuth integration coming soon! Use demo accounts for now.', 'warning');
 }
 
 function showForgotPassword(e) {
-  e?.preventDefault();
-  showModalAlert('Password reset email sent (demo mode — nothing actually sent). Use demo accounts.', 'warning');
+  if (e) e.preventDefault();
+  showModalAlert('Password reset email sent (demo mode). Use demo accounts below.', 'warning');
 }
 
 // ===============================================================
 // AFTER LOGIN — routes user to correct section based on type/status
 // ===============================================================
 function afterLogin(isNew) {
-  // Refresh user data from DB (catches approval status changes)
   if (currentUser && currentUser.email) {
     const fresh = getUser(currentUser.email);
     if (fresh) currentUser = { ...fresh };
   }
 
-  // Update header
   document.getElementById('not-logged-in').classList.add('hidden');
   document.getElementById('user-info').classList.remove('hidden');
   document.getElementById('user-name').textContent = currentUser.name;
@@ -2586,7 +2577,6 @@ function afterLogin(isNew) {
     : 'Shopper';
   document.getElementById('user-role').textContent = roleLabel;
 
-  // Show status badge in header
   const statusBadge = document.getElementById('user-status-badge');
   if (currentUser.type === 'seller') {
     if (currentUser.status === 'pending') {
@@ -2600,20 +2590,17 @@ function afterLogin(isNew) {
     statusBadge.innerHTML = '';
   }
 
-  if (isNew) showToast(`Welcome, ${currentUser.name}! 👋`, 'success');
+  if (isNew) showToast('Welcome, ' + currentUser.name + '! 👋', 'success');
 
   if (currentUser.type === 'seller') {
     if (currentUser.status === 'approved') {
-      // Full seller dashboard
       document.getElementById('sidebar-supplier-name').textContent = currentUser.businessName || currentUser.name;
       document.getElementById('sidebar-supplier-status').textContent = 'Active Seller';
       showSection('supplier-dashboard');
       showSupplierPanel('dashboard');
     } else if (currentUser.status === 'rejected') {
-      // Show pending page with rejected banner
       showPendingPage(true);
     } else {
-      // pending — show waiting page
       showPendingPage(false);
     }
   } else if (currentUser.type === 'owner') {
@@ -2635,20 +2622,20 @@ function showPendingPage(isRejected) {
   document.getElementById('pending-seller-name').textContent = currentUser.name || 'Seller';
   document.getElementById('pending-business-name').textContent = currentUser.businessName || 'your business';
 
-  const rejectedBanner  = document.getElementById('rejected-banner');
-  const pendingSteps    = document.getElementById('pending-steps-list');
-  const statusTicker    = document.getElementById('pending-status-ticker');
+  const rejectedBanner = document.getElementById('rejected-banner');
+  const pendingSteps   = document.getElementById('pending-steps-list');
+  const statusTicker   = document.getElementById('pending-status-ticker');
 
   if (isRejected) {
     rejectedBanner.classList.remove('hidden');
     pendingSteps.classList.add('hidden');
-    statusTicker.innerHTML = `<i class="fas fa-times-circle" style="color:#ef4444;"></i><span style="color:#fca5a5;">Application Not Approved</span>`;
+    statusTicker.innerHTML = '<i class="fas fa-times-circle" style="color:#ef4444;"></i><span style="color:#fca5a5;">Application Not Approved</span>';
     statusTicker.style.background = 'rgba(239,68,68,0.1)';
     statusTicker.style.borderColor = 'rgba(239,68,68,0.3)';
   } else {
     rejectedBanner.classList.add('hidden');
     pendingSteps.classList.remove('hidden');
-    statusTicker.innerHTML = `<span class="pulse-dot" style="background:var(--warning-orange);"></span><span>Awaiting Admin Approval</span>`;
+    statusTicker.innerHTML = '<span class="pulse-dot" style="background:var(--warning-orange);"></span><span>Awaiting Admin Approval</span>';
     statusTicker.style.background = 'rgba(245,158,11,0.1)';
     statusTicker.style.borderColor = 'rgba(245,158,11,0.3)';
   }
@@ -2657,7 +2644,6 @@ function showPendingPage(isRejected) {
 }
 
 function checkApprovalStatus() {
-  // Re-read status from DB (simulates polling)
   const fresh = getUser(currentUser.email);
   if (!fresh) return;
   currentUser = { ...fresh };
@@ -2686,7 +2672,8 @@ function logout() {
 }
 
 function showModalAlert(msg, type) {
-  document.getElementById('modal-alert').innerHTML = `<div class="notification notification-${type} text-sm">${msg}</div>`;
+  const el = document.getElementById('modal-alert');
+  if (el) el.innerHTML = '<div class="notification notification-' + type + ' text-sm">' + msg + '</div>';
 }
 
 function clearModalAlert() {
@@ -2742,7 +2729,7 @@ function filterProducts() {
     return matchSearch && matchCat;
   });
 
-  if (sort === 'price-low')  filtered.sort((a,b) => a.price - b.price);
+  if (sort === 'price-low')       filtered.sort((a,b) => a.price - b.price);
   else if (sort === 'price-high') filtered.sort((a,b) => b.price - a.price);
   else if (sort === 'rating')     filtered.sort((a,b) => b.rating - a.rating);
 
@@ -2763,10 +2750,10 @@ function addToCart(productId) {
   const existing = cart.find(i => i.id === productId);
   if (existing) {
     existing.qty++;
-    showToast(`Added another ${product.name} to cart.`, 'success');
+    showToast('Added another ' + product.name + ' to cart.', 'success');
   } else {
     cart.push({ ...product, qty: 1 });
-    showToast(`${product.name} added to cart!`, 'success');
+    showToast(product.name + ' added to cart!', 'success');
   }
   updateCartBadge();
   renderCart();
@@ -2797,7 +2784,7 @@ function renderCart() {
   const list    = document.getElementById('cart-items-list');
   const summary = document.getElementById('cart-summary');
   if (!cart.length) {
-    list.innerHTML = `<div class="text-center py-12 text-gray-400"><i class="fas fa-shopping-cart text-5xl mb-4 block opacity-30"></i><p class="text-lg">Your cart is empty</p><button class="btn btn-compact mt-4" onclick="showSection('marketplace')"><i class="fas fa-store mr-2"></i>Continue Shopping</button></div>`;
+    list.innerHTML = '<div class="text-center py-12 text-gray-400"><i class="fas fa-shopping-cart text-5xl mb-4 block opacity-30"></i><p class="text-lg">Your cart is empty</p><button class="btn btn-compact mt-4" onclick="showSection(\'marketplace\')"><i class="fas fa-store mr-2"></i>Continue Shopping</button></div>';
     summary.classList.add('hidden');
     return;
   }
@@ -2822,9 +2809,9 @@ function renderCart() {
 
   const subtotal  = cart.reduce((s,i) => s + i.price * i.qty, 0);
   const itemCount = cart.reduce((s,i) => s + i.qty, 0);
-  document.getElementById('cart-item-count').textContent  = itemCount;
-  document.getElementById('cart-subtotal').textContent    = `$${subtotal.toFixed(2)}`;
-  document.getElementById('cart-total').textContent       = `$${subtotal.toFixed(2)}`;
+  document.getElementById('cart-item-count').textContent = itemCount;
+  document.getElementById('cart-subtotal').textContent   = '$' + subtotal.toFixed(2);
+  document.getElementById('cart-total').textContent      = '$' + subtotal.toFixed(2);
   summary.classList.remove('hidden');
 }
 
@@ -2841,9 +2828,9 @@ function proceedToCheckout() {
   if (!currentUser) { showLoginModal(); return; }
   if (!cart.length) return;
 
-  const subtotal     = cart.reduce((s,i) => s + i.price * i.qty, 0);
-  const summaryHtml  = cart.map(i => `
-    <div class="flex justify-between items-center py-2 text-sm ${i !== cart[cart.length-1] ? 'border-b border-gray-700' : ''}">
+  const subtotal    = cart.reduce((s,i) => s + i.price * i.qty, 0);
+  const summaryHtml = cart.map(i => `
+    <div class="flex justify-between items-center py-2 text-sm border-b border-gray-700">
       <span>${i.name} <span class="text-gray-500">×${i.qty}</span></span>
       <span class="text-yellow-400 font-bold">$${(i.price * i.qty).toFixed(2)}</span>
     </div>
@@ -2854,17 +2841,17 @@ function proceedToCheckout() {
     </div>`;
 
   document.getElementById('checkout-order-summary').innerHTML = summaryHtml;
-  document.getElementById('pay-total').textContent = `$${subtotal.toFixed(2)}`;
+  document.getElementById('pay-total').textContent = '$' + subtotal.toFixed(2);
 
   goToCheckoutStep(1, true);
   document.getElementById('checkout-success').classList.add('hidden');
   document.getElementById('checkout-modal').classList.add('show');
 }
 
-function goToCheckoutStep(step, init=false) {
+function goToCheckoutStep(step, init) {
   [1,2,3].forEach(n => {
-    document.getElementById(`checkout-step-${n}`)?.classList.toggle('hidden', n !== step);
-    const s = document.getElementById(`step-${n}`);
+    document.getElementById('checkout-step-' + n)?.classList.toggle('hidden', n !== step);
+    const s = document.getElementById('step-' + n);
     if (s) {
       s.className = 'step';
       if (n < step) s.classList.add('done');
@@ -2912,12 +2899,12 @@ function processPayment() {
     document.getElementById('order-id').textContent = orderId;
 
     [1,2,3].forEach(n => {
-      document.getElementById(`checkout-step-${n}`)?.classList.add('hidden');
-      const s = document.getElementById(`step-${n}`);
+      document.getElementById('checkout-step-' + n)?.classList.add('hidden');
+      const s = document.getElementById('step-' + n);
       if (s) s.className = 'step done';
     });
     document.getElementById('checkout-success').classList.remove('hidden');
-    showToast(`Order ${orderId} placed successfully! 🎉`, 'success');
+    showToast('Order ' + orderId + ' placed successfully! 🎉', 'success');
 
     btn.innerHTML = '<i class="fas fa-lock mr-2"></i>Pay Now (Demo)';
     btn.disabled  = false;
@@ -2955,7 +2942,7 @@ function handleSupplierApplication(e) {
     updatePendingCount();
 
     closeModal('supplier-application-modal');
-    showToast(`Application submitted! We'll review within 24 hours.`, 'success');
+    showToast("Application submitted! We'll review within 24 hours.", 'success');
     e.target.reset();
     btn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Submit Application';
     btn.disabled  = false;
@@ -2967,9 +2954,9 @@ function handleSupplierApplication(e) {
 // ===============================================================
 function showSupplierPanel(panelName) {
   document.querySelectorAll('.seller-nav-item').forEach(i => i.classList.remove('active'));
-  document.getElementById(`snav-${panelName}`)?.classList.add('active');
+  document.getElementById('snav-' + panelName)?.classList.add('active');
   document.querySelectorAll('.supplier-panel').forEach(p => p.classList.add('hidden'));
-  document.getElementById(`supplier-${panelName}-panel`)?.classList.remove('hidden');
+  document.getElementById('supplier-' + panelName + '-panel')?.classList.remove('hidden');
 
   if (panelName === 'products') renderSupplierProducts();
   else if (panelName === 'earnings') renderSupplierEarnings();
@@ -3096,7 +3083,7 @@ function handleAddProduct(e) {
     supplierProductsData.push(newProduct);
 
     closeModal('add-product-modal');
-    showToast(`"${newProduct.name}" listed! $25.00 listing fee processed (demo).`, 'success');
+    showToast('"' + newProduct.name + '" listed! $25.00 listing fee processed (demo).', 'success');
     showSupplierPanel('products');
 
     btn.innerHTML = '<i class="fas fa-credit-card mr-2"></i>Pay $25 & List Product (Demo)';
@@ -3111,10 +3098,10 @@ function editProduct(id) {
 function manageStock(id) {
   const product = supplierProductsData.find(p => p.id === id);
   if (!product) return;
-  const val = prompt(`Current stock: ${product.stock} units\nEnter new stock quantity:`, product.stock);
+  const val = prompt('Current stock: ' + product.stock + ' units\nEnter new stock quantity:', product.stock);
   if (val !== null && !isNaN(val) && parseInt(val) >= 0) {
     product.stock = parseInt(val);
-    showToast(`Stock updated to ${product.stock} units for "${product.name}".`, 'success');
+    showToast('Stock updated to ' + product.stock + ' units for "' + product.name + '".', 'success');
     renderSupplierProducts();
   }
 }
@@ -3128,9 +3115,9 @@ function requestPayout() {
 // ===============================================================
 function showOwnerPanel(panelName) {
   document.querySelectorAll('.owner-nav-item').forEach(i => i.classList.remove('active'));
-  document.getElementById(`onav-${panelName}`)?.classList.add('active');
+  document.getElementById('onav-' + panelName)?.classList.add('active');
   document.querySelectorAll('.owner-panel').forEach(p => p.classList.add('hidden'));
-  document.getElementById(`owner-${panelName}-panel`)?.classList.remove('hidden');
+  document.getElementById('owner-' + panelName + '-panel')?.classList.remove('hidden');
 
   if (panelName === 'applications') renderApplications();
   else if (panelName === 'sellers')  renderSellersPanel();
@@ -3138,9 +3125,7 @@ function showOwnerPanel(panelName) {
   else if (panelName === 'analytics') setTimeout(initCharts, 100);
 }
 
-// ----------------------------------------------------------------
-// SELLERS PANEL — owner approves/rejects new seller sign-ups
-// ----------------------------------------------------------------
+// -- Sellers Panel --
 function getPendingSellers() {
   const users = getUsers();
   return Object.values(users).filter(u => u.type === 'seller');
@@ -3148,14 +3133,14 @@ function getPendingSellers() {
 
 function updateOwnerPendingSellersCount() {
   const pendingCount = getPendingSellers().filter(u => u.status === 'pending').length;
-  const badge        = document.getElementById('pending-sellers-badge');
-  const stat         = document.getElementById('pending-sellers-stat');
+  const badge = document.getElementById('pending-sellers-badge');
+  const stat  = document.getElementById('pending-sellers-stat');
   if (badge) badge.textContent = pendingCount;
   if (stat)  stat.textContent  = pendingCount;
 }
 
 function renderSellersPanel() {
-  const container   = document.getElementById('sellers-panel-container');
+  const container = document.getElementById('sellers-panel-container');
   if (!container) return;
 
   const statusFilter = document.getElementById('seller-status-filter')?.value || 'all';
@@ -3224,14 +3209,9 @@ function approveSeller(email) {
   upsertUser(email, { status: 'approved' });
   updateOwnerPendingSellersCount();
   renderSellersPanel();
-
   const user = getUser(email);
-  showToast(`✅ ${user?.businessName || user?.name || email} approved! They can now access their seller dashboard.`, 'success');
-
-  // Add to activity feed
-  addOwnerActivity(`Approved seller: <strong>${user?.businessName || user?.name}</strong>`);
-
-  // If currently logged in as that seller, update their live session too
+  showToast('✅ ' + (user?.businessName || user?.name || email) + ' approved!', 'success');
+  addOwnerActivity('Approved seller: <strong>' + (user?.businessName || user?.name) + '</strong>');
   if (currentUser && currentUser.email === email) {
     currentUser.status = 'approved';
   }
@@ -3240,17 +3220,15 @@ function approveSeller(email) {
 function rejectSeller(email) {
   const user = getUser(email);
   openConfirm(
-    `${user?.status === 'approved' ? 'Revoke' : 'Reject'} ${user?.businessName || user?.name}?`,
-    user?.status === 'approved'
-      ? 'This will suspend their seller access immediately.'
-      : 'Their application will be rejected.',
+    (user?.status === 'approved' ? 'Revoke' : 'Reject') + ' ' + (user?.businessName || user?.name) + '?',
+    user?.status === 'approved' ? 'This will suspend their seller access immediately.' : 'Their application will be rejected.',
     '⚠️',
     () => {
       upsertUser(email, { status: 'rejected' });
       updateOwnerPendingSellersCount();
       renderSellersPanel();
-      showToast(`${user?.businessName || user?.name} — access rejected.`, 'warning');
-      addOwnerActivity(`Rejected seller: <strong>${user?.businessName || user?.name}</strong>`);
+      showToast((user?.businessName || user?.name) + ' — access rejected.', 'warning');
+      addOwnerActivity('Rejected seller: <strong>' + (user?.businessName || user?.name) + '</strong>');
     }
   );
 }
@@ -3320,7 +3298,7 @@ function approveApplication(id) {
   app.status = 'approved';
   updatePendingCount();
   renderApplications();
-  showToast(`Application from ${app.businessName} approved!`, 'success');
+  showToast('Application from ' + app.businessName + ' approved!', 'success');
 }
 
 function rejectApplication(id) {
@@ -3329,7 +3307,7 @@ function rejectApplication(id) {
   app.status = 'rejected';
   updatePendingCount();
   renderApplications();
-  showToast(`Application from ${app.businessName} rejected.`, 'warning');
+  showToast('Application from ' + app.businessName + ' rejected.', 'warning');
 }
 
 function viewApplication(id) {
@@ -3401,20 +3379,20 @@ function renderSuppliers() {
 
 function viewSupplierDetail(id) {
   const s = allSuppliers.find(x => x.id === id);
-  showToast(`Viewing ${s?.name}. Full supplier detail page coming in v3.`, 'success');
+  showToast('Viewing ' + s?.name + '. Full supplier detail page coming in v3.', 'success');
 }
 
 function editSupplierDetail(id) {
   const s = allSuppliers.find(x => x.id === id);
-  showToast(`Edit mode for ${s?.name}. Inline editing coming in v3.`, 'warning');
+  showToast('Edit mode for ' + s?.name + '. Inline editing coming in v3.', 'warning');
 }
 
 function suspendSupplierConfirm(id) {
   const s = allSuppliers.find(x => x.id === id);
-  openConfirm(`Suspend ${s?.name}?`, 'This will prevent them from selling until reinstated.', '⚠️', () => {
+  openConfirm('Suspend ' + s?.name + '?', 'This will prevent them from selling until reinstated.', '⚠️', () => {
     s.status = s.status === 'active' ? 'suspended' : 'active';
     renderSuppliers();
-    showToast(`${s.name} ${s.status === 'active' ? 'reinstated' : 'suspended'}.`, s.status === 'active' ? 'success' : 'warning');
+    showToast(s.name + ' ' + (s.status === 'active' ? 'reinstated' : 'suspended') + '.', s.status === 'active' ? 'success' : 'warning');
   });
 }
 
@@ -3424,7 +3402,7 @@ function refreshSuppliers() {
 }
 
 function exportData(type) {
-  showToast(`${type === 'suppliers' ? 'Suppliers CSV' : 'Analytics report'} exported successfully!`, 'success');
+  showToast((type === 'suppliers' ? 'Suppliers CSV' : 'Analytics report') + ' exported successfully!', 'success');
 }
 
 // -- Analytics Charts --
@@ -3469,10 +3447,10 @@ function saveSecuritySettings() {
 }
 
 function resetSecuritySettings() {
-  document.getElementById('session-timeout').value      = '30';
-  document.getElementById('max-login-attempts').value   = '5';
-  document.getElementById('password-min-length').value  = '8';
-  document.getElementById('lockout-duration').value     = '15';
+  document.getElementById('session-timeout').value     = '30';
+  document.getElementById('max-login-attempts').value  = '5';
+  document.getElementById('password-min-length').value = '8';
+  document.getElementById('lockout-duration').value    = '15';
   showToast('Security settings reset to defaults.', 'success');
 }
 
@@ -3495,10 +3473,10 @@ function confirmResetSystem() {
 // ===============================================================
 // CONFIRM DIALOG
 // ===============================================================
-function openConfirm(title, message, icon='⚠️', onConfirm) {
+function openConfirm(title, message, icon, onConfirm) {
   document.getElementById('confirm-title').textContent   = title;
   document.getElementById('confirm-message').textContent = message;
-  document.getElementById('confirm-icon').textContent    = icon;
+  document.getElementById('confirm-icon').textContent    = icon || '⚠️';
   pendingConfirmAction = onConfirm;
   document.getElementById('confirm-modal').classList.add('show');
 }
@@ -3512,15 +3490,16 @@ function confirmAction() {
 // ===============================================================
 // TOAST NOTIFICATIONS
 // ===============================================================
-function showToast(message, type='success') {
+function showToast(message, type) {
+  type = type || 'success';
   const container = document.getElementById('toast-container');
   const toast     = document.createElement('div');
-  toast.className = `toast toast-${type}`;
+  toast.className = 'toast toast-' + type;
   const icons  = { success:'check-circle', warning:'exclamation-triangle', error:'times-circle' };
   const colors = { success:'#10b981', warning:'#f59e0b', error:'#ef4444' };
   toast.innerHTML = `
     <div class="flex items-start gap-3">
-      <i class="fas fa-${icons[type] || 'info-circle'} mt-0.5" style="color:${colors[type]};flex-shrink:0;"></i>
+      <i class="fas fa-${icons[type] || 'info-circle'} mt-0.5" style="color:${colors[type] || '#3b82f6'};flex-shrink:0;"></i>
       <span class="text-sm leading-5">${message}</span>
     </div>`;
   container.appendChild(toast);
