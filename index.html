@@ -1322,6 +1322,9 @@
           <i class="fas fa-handshake mr-3"></i>Suppliers
           <span class="badge badge-info ml-2">24</span>
         </a>
+        <a class="owner-nav-item" id="onav-products" onclick="showOwnerPanel('products')">
+          <i class="fas fa-box-open mr-3"></i>Products
+        </a>
         <a class="owner-nav-item" id="onav-analytics" onclick="showOwnerPanel('analytics')">
           <i class="fas fa-chart-bar mr-3"></i>Analytics
         </a>
@@ -1556,6 +1559,42 @@
             <tbody id="suppliers-tbody"></tbody>
           </table>
         </div>
+      </div>
+
+      <!-- Products Panel -->
+      <div class="owner-panel hidden" id="owner-products-panel">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-3xl font-bold">Product Management</h2>
+          <div class="flex gap-3">
+            <button class="btn btn-compact" onclick="refreshOwnerProducts()">
+              <i class="fas fa-sync-alt mr-2"></i>Refresh
+            </button>
+            <button class="btn-danger btn-compact" onclick="deleteAllProductsConfirm()">
+              <i class="fas fa-trash-alt mr-2"></i>Delete All Products
+            </button>
+          </div>
+        </div>
+
+        <div class="search-filter-bar mb-4">
+          <div class="filter-group" style="flex:1;">
+            <label class="filter-label">Search Products</label>
+            <input type="text" class="input-field" id="owner-product-search" placeholder="Search by name or supplier..." oninput="renderOwnerProducts()">
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Category</label>
+            <select class="input-field" id="owner-product-cat" onchange="renderOwnerProducts()" style="width:160px;">
+              <option value="all">All Categories</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Fashion">Fashion</option>
+              <option value="Home">Home &amp; Garden</option>
+              <option value="Sports">Sports</option>
+              <option value="Accessories">Accessories</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="dashboard-cards mb-4" id="owner-products-stats"></div>
+        <div id="owner-products-container"></div>
       </div>
 
       <!-- Analytics Panel -->
@@ -2336,7 +2375,7 @@ function upsertUser(email, data) {
 // ===============================================================
 // DEMO DATA
 // ===============================================================
-const allProducts = [
+const DEFAULT_PRODUCTS = [
   { id:1, name:'Premium Wireless Headphones', price:299.99, category:'Electronics', rating:4.8, reviews:124, stock:45,
     description:'High-quality wireless headphones with active noise cancellation and 30-hour battery life.',
     image:'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=280&fit=crop', supplier:'TechCorp Inc.' },
@@ -2366,6 +2405,23 @@ const allProducts = [
     image:'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=400&h=280&fit=crop', supplier:'Fashion World' }
 ];
 
+// Products stored in localStorage so owner deletes persist across sessions
+function getStoredProducts() {
+  try {
+    const stored = localStorage.getItem('milloProducts');
+    if (stored) return JSON.parse(stored);
+  } catch(e) {}
+  // Seed defaults
+  localStorage.setItem('milloProducts', JSON.stringify(DEFAULT_PRODUCTS));
+  return DEFAULT_PRODUCTS.map(p => ({...p}));
+}
+
+function saveStoredProducts(products) {
+  localStorage.setItem('milloProducts', JSON.stringify(products));
+}
+
+let allProducts = getStoredProducts();
+
 const allApplications = [
   { id:1, businessName:'TechCorp Solutions', email:'contact@techcorp.com', phone:'+1-555-0123', experience:'6-10 years', category:'Electronics', revenue:'$100k–$500k', reason:'Expand our global reach and access premium customers.', status:'pending', submittedAt:new Date(Date.now()-2*60*60*1000) },
   { id:2, businessName:'Fashion Plus Ltd', email:'info@fashionplus.com', phone:'+1-555-0456', experience:'2-5 years', category:'Fashion', revenue:'$50k–$100k', reason:'Millo has a great community and marketing reach.', status:'pending', submittedAt:new Date(Date.now()-15*60*1000) },
@@ -2393,6 +2449,7 @@ const supplierProductsData = [
 // ===============================================================
 document.addEventListener('DOMContentLoaded', () => {
   initUserDB();
+  allProducts = getStoredProducts();
   renderProducts(allProducts);
   updateOwnerPendingSellersCount();
 
@@ -2723,6 +2780,7 @@ function filterProducts() {
   const cat    = document.getElementById('product-category-filter').value;
   const sort   = document.getElementById('product-sort').value;
 
+  allProducts = getStoredProducts();
   let filtered = allProducts.filter(p => {
     const matchSearch = !search || p.name.toLowerCase().includes(search) || p.description.toLowerCase().includes(search);
     const matchCat    = cat === 'all' || p.category === cat;
@@ -3122,7 +3180,140 @@ function showOwnerPanel(panelName) {
   if (panelName === 'applications') renderApplications();
   else if (panelName === 'sellers')  renderSellersPanel();
   else if (panelName === 'suppliers') renderSuppliers();
+  else if (panelName === 'products') renderOwnerProducts();
   else if (panelName === 'analytics') setTimeout(initCharts, 100);
+}
+
+// ===============================================================
+// OWNER — PRODUCT MANAGEMENT
+// ===============================================================
+function renderOwnerProducts() {
+  allProducts = getStoredProducts();
+  const search = (document.getElementById('owner-product-search')?.value || '').toLowerCase();
+  const cat    = document.getElementById('owner-product-cat')?.value || 'all';
+
+  let filtered = allProducts.filter(p => {
+    const matchSearch = !search || p.name.toLowerCase().includes(search) || (p.supplier||'').toLowerCase().includes(search);
+    const matchCat    = cat === 'all' || p.category === cat;
+    return matchSearch && matchCat;
+  });
+
+  // Stats
+  const statsEl = document.getElementById('owner-products-stats');
+  if (statsEl) {
+    statsEl.innerHTML = `
+      <div class="dashboard-card"><h3>${allProducts.length}</h3><p>Total Products</p></div>
+      <div class="dashboard-card"><h3>${[...new Set(allProducts.map(p=>p.category))].length}</h3><p>Categories</p></div>
+      <div class="dashboard-card"><h3>${allProducts.filter(p=>p.stock<20).length}</h3><p>Low Stock</p></div>
+      <div class="dashboard-card"><h3>$${allProducts.length ? Math.min(...allProducts.map(p=>p.price)).toFixed(2) : '0.00'} – $${allProducts.length ? Math.max(...allProducts.map(p=>p.price)).toFixed(2) : '0.00'}</h3><p>Price Range</p></div>
+    `;
+  }
+
+  const container = document.getElementById('owner-products-container');
+  if (!container) return;
+
+  if (!filtered.length) {
+    container.innerHTML = `
+      <div class="text-center py-16 text-gray-400">
+        <i class="fas fa-box-open text-5xl mb-4 block opacity-30"></i>
+        <p class="text-lg font-medium">${allProducts.length === 0 ? 'No products listed yet.' : 'No products match your search.'}</p>
+        ${allProducts.length === 0 ? '<p class="text-sm text-gray-500 mt-2">Products deleted from this panel are removed from the marketplace.</p>' : ''}
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="card" style="overflow:auto;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Rating</th>
+            <th>Supplier</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${filtered.map(p => `
+            <tr>
+              <td>
+                <div class="flex items-center gap-3">
+                  <img src="${p.image}" alt="${p.name}" style="width:48px;height:48px;object-fit:cover;border-radius:8px;flex-shrink:0;">
+                  <div>
+                    <div class="font-semibold text-sm">${p.name}</div>
+                    <div class="text-xs text-gray-500 mt-0.5">${p.description.substring(0,60)}...</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="badge badge-info">${p.category}</span></td>
+              <td class="text-yellow-400 font-bold">$${p.price.toFixed(2)}</td>
+              <td>
+                <span class="${p.stock < 20 ? 'text-red-400' : 'text-green-400'} font-semibold">${p.stock}</span>
+                ${p.stock < 20 ? '<span class="badge badge-warning ml-1" style="font-size:0.6rem;">LOW</span>' : ''}
+              </td>
+              <td><span style="color:#fbbf24;">${'★'.repeat(Math.floor(p.rating))}</span> <span class="text-sm text-gray-400">${p.rating}</span></td>
+              <td class="text-sm text-gray-300">${p.supplier}</td>
+              <td>
+                <button class="btn-danger btn-compact" onclick="deleteProductConfirm(${p.id})" title="Delete product">
+                  <i class="fas fa-trash-alt mr-1"></i>Delete
+                </button>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      <div class="p-4 flex justify-between items-center border-t border-gray-700 text-sm text-gray-400">
+        <span>Showing ${filtered.length} of ${allProducts.length} product${allProducts.length !== 1 ? 's' : ''}</span>
+        ${filtered.length < allProducts.length ? '<span class="text-yellow-400">Filtered view — clear search to see all</span>' : ''}
+      </div>
+    </div>
+  `;
+}
+
+function deleteProductConfirm(productId) {
+  const product = allProducts.find(p => p.id === productId);
+  if (!product) return;
+  openConfirm(
+    'Delete "' + product.name + '"?',
+    'This product will be permanently removed from the marketplace. Customers will no longer see it.',
+    '🗑️',
+    () => {
+      const products = getStoredProducts().filter(p => p.id !== productId);
+      saveStoredProducts(products);
+      allProducts = products;
+      showToast('"' + product.name + '" has been deleted from the marketplace.', 'success');
+      addOwnerActivity('Deleted product: <strong>' + product.name + '</strong>');
+      renderOwnerProducts();
+      renderProducts(allProducts);  // refresh marketplace too
+    }
+  );
+}
+
+function deleteAllProductsConfirm() {
+  const count = getStoredProducts().length;
+  if (count === 0) { showToast('There are no products to delete.', 'warning'); return; }
+  openConfirm(
+    'Delete ALL ' + count + ' Products?',
+    'Every product will be permanently removed from the marketplace. This cannot be undone.',
+    '🚨',
+    () => {
+      saveStoredProducts([]);
+      allProducts = [];
+      showToast('All ' + count + ' products have been deleted from the marketplace.', 'success');
+      addOwnerActivity('Deleted ALL products from marketplace (' + count + ' removed)');
+      renderOwnerProducts();
+      renderProducts([]);  // clear marketplace
+    }
+  );
+}
+
+function refreshOwnerProducts() {
+  allProducts = getStoredProducts();
+  renderOwnerProducts();
+  showToast('Product list refreshed.', 'success');
 }
 
 // -- Sellers Panel --
