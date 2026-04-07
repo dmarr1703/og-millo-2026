@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://js.stripe.com/v3/"></script>
 
 <style>
   :root {
@@ -859,7 +860,7 @@
         <h1 class="text-5xl md:text-6xl font-display gradient-gold mb-4">Millo Marketplace</h1>
         <p class="text-xl text-gray-300 mb-3">Premium products from verified suppliers worldwide</p>
         <p class="text-base text-yellow-400 mb-8">
-          <i class="fas fa-bolt mr-2"></i>Suppliers pay only <strong>$25</strong> per product listing — real-time approval system!
+          <i class="fas fa-bolt mr-2"></i>Suppliers pay only <strong>$25 CAD</strong> per product listing — secured by Stripe!
         </p>
         <div class="flex flex-col sm:flex-row justify-center gap-4">
           <button class="btn px-8 py-3 text-base" onclick="scrollToProducts()">
@@ -1013,7 +1014,7 @@
             <div class="pending-step-icon"><i class="fas fa-box"></i></div>
             <div>
               <div class="font-semibold text-gray-400 text-sm">Start Listing Products</div>
-              <div class="text-xs text-gray-500">Add your products — $25/listing</div>
+              <div class="text-xs text-gray-500">Add your products — $25 CAD/listing via Stripe</div>
             </div>
           </div>
         </div>
@@ -1148,7 +1149,7 @@
               </div>
             </div>
             <button class="btn w-full mt-4 btn-compact" onclick="showSupplierPanel('products')">
-              <i class="fas fa-plus mr-2"></i>Add New Product — $25
+              <i class="fas fa-plus mr-2"></i>Add New Product — $25 CAD
             </button>
           </div>
         </div>
@@ -2003,7 +2004,7 @@
     </div>
 
     <div class="notification notification-success mb-5">
-      <i class="fas fa-bolt mr-2"></i><strong>Real-time Processing:</strong> Get instant approval or feedback! Just $25 per product listing.
+      <i class="fas fa-bolt mr-2"></i><strong>Stripe-secured Checkout:</strong> Pay $25 CAD per listing — instant activation on payment confirmation.
     </div>
 
     <form id="supplier-app-form" onsubmit="handleSupplierApplication(event)">
@@ -2226,8 +2227,9 @@
         <i class="fas fa-times text-xl"></i>
       </button>
     </div>
-    <div class="notification notification-warning mb-5">
-      <i class="fas fa-tag mr-2"></i><strong>Listing Fee: $25.00</strong> — one-time payment per product (demo mode)
+    <div class="notification notification-warning mb-5" style="background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.4);border-radius:8px;padding:12px 16px;">
+      <i class="fas fa-tag mr-2"></i><strong>Listing Fee: $25.00 CAD</strong> — Secure one-time payment via <strong>Stripe</strong>
+      <span id="stripe-key-status" class="ml-2 text-xs" style="opacity:0.7;"></span>
     </div>
     <form id="add-product-form" onsubmit="handleAddProduct(event)">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -2267,17 +2269,20 @@
       <div class="card p-4 mt-2 mb-4" style="background:var(--bg-tertiary);">
         <div class="flex justify-between items-center mb-1">
           <span class="text-gray-400">Listing Fee:</span>
-          <span class="text-2xl font-bold text-yellow-400">$25.00 <span class="text-sm text-gray-400">(demo)</span></span>
+          <span class="text-2xl font-bold text-yellow-400">$25.00 <span class="text-sm text-gray-400">CAD</span></span>
         </div>
-        <p class="text-xs text-gray-500"><i class="fas fa-info-circle mr-1"></i>Payment is simulated. No real charge.</p>
+        <div class="flex items-center gap-3 mt-2">
+          <img src="https://js.stripe.com/v3/fingerprinted/img/checkout-logos-dark-1f8a8c9f4b0e69f17c5fd53aaab94c7e.svg" alt="Stripe" style="height:22px;opacity:0.7;" onerror="this.style.display='none'">
+          <p class="text-xs text-gray-500"><i class="fas fa-lock mr-1"></i>Payments processed securely by Stripe. You'll be redirected to complete payment.</p>
+        </div>
       </div>
       <div class="checkbox-container">
         <input type="checkbox" id="product-terms" required>
         <label for="product-terms">I agree to pay the $25.00 listing fee and accept the product listing terms</label>
       </div>
       <div class="flex gap-3 mt-4">
-        <button type="submit" class="btn flex-1 py-3">
-          <i class="fas fa-credit-card mr-2"></i>Pay $25 &amp; List Product (Demo)
+        <button type="submit" class="btn flex-1 py-3" id="stripe-pay-btn">
+          <i class="fab fa-stripe mr-2"></i>Pay $25.00 CAD via Stripe
         </button>
         <button type="button" class="btn-secondary flex-1 py-3" onclick="closeModal('add-product-modal')">
           Cancel
@@ -3009,7 +3014,7 @@ function renderSupplierProducts() {
     <div class="flex justify-between items-center mb-6">
       <h2 class="text-3xl font-bold">My Products (${supplierProductsData.length})</h2>
       <button class="btn btn-compact" onclick="openAddProductModal()">
-        <i class="fas fa-plus mr-2"></i>Add Product — $25
+        <i class="fas fa-plus mr-2"></i>Add Product — $25 CAD
       </button>
     </div>
     <div class="product-grid">
@@ -3096,55 +3101,113 @@ function saveSupplierProfile() {
   showToast('Profile saved successfully!', 'success');
 }
 
+// ── Stripe publishable key (fetched once on page load) ──────────────────────
+let _stripePublishableKey = '';
+(async function fetchStripeConfig() {
+  try {
+    const res  = await fetch('/config');
+    const data = await res.json();
+    _stripePublishableKey = data.publishableKey || '';
+    const badge = document.getElementById('stripe-key-status');
+    if (badge) {
+      if (_stripePublishableKey) {
+        badge.textContent = '✓ Live';
+        badge.style.color = '#10b981';
+      } else {
+        badge.textContent = '⚠ Keys not configured';
+        badge.style.color = '#f59e0b';
+      }
+    }
+  } catch (_) {
+    // Server not running (static file open) — gracefully degrade
+  }
+})();
+
 function openAddProductModal() {
   document.getElementById('add-product-form')?.reset();
   document.getElementById('add-product-modal').classList.add('show');
 }
 
-function handleAddProduct(e) {
+async function handleAddProduct(e) {
   e.preventDefault();
   const data = new FormData(e.target);
-  const btn  = e.target.querySelector('button[type=submit]');
-  btn.innerHTML = '<div class="loading-spinner"></div>Processing payment...';
+  const btn  = document.getElementById('stripe-pay-btn');
+
+  const productName  = data.get('productName');
+  const category     = data.get('category');
+  const price        = data.get('price');
+  const stock        = data.get('stock');
+  const imageUrl     = data.get('imageUrl') || '';
+  const description  = data.get('description') || '';
+  const supplierName = currentUser?.businessName || currentUser?.name || 'Supplier';
+  const supplierEmail = currentUser?.email || '';
+
+  btn.innerHTML = '<div class="loading-spinner" style="display:inline-block;width:18px;height:18px;border:2px solid rgba(0,0,0,0.3);border-top-color:#000;border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle;margin-right:8px;"></div>Redirecting to Stripe...';
   btn.disabled  = true;
 
-  setTimeout(() => {
-    // Build a unique ID that won't collide with existing products
-    const existingIds = getStoredProducts().map(p => p.id);
-    const newId = existingIds.length ? Math.max(...existingIds) + 1 : 1;
+  // ── If no server running (static / demo mode), fall back to demo flow ────
+  if (!_stripePublishableKey) {
+    setTimeout(() => {
+      _addProductLocally({ productName, category, price, stock, imageUrl, description, supplierName });
+      btn.innerHTML = '<i class="fab fa-stripe mr-2"></i>Pay $25.00 CAD via Stripe';
+      btn.disabled  = false;
+    }, 1800);
+    return;
+  }
 
-    const newProduct = {
-      id: newId,
-      name: data.get('productName'),
-      price: parseFloat(data.get('price')),
-      category: data.get('category'),
-      description: data.get('description') || '',
-      stock: parseInt(data.get('stock')),
-      sales: 0, revenue: 0, status: 'active',
-      dateAdded: new Date().toISOString().split('T')[0],
-      image: data.get('imageUrl') || '',
-      supplier: currentUser?.businessName || currentUser?.name || 'Unknown Supplier'
-    };
+  // ── Real Stripe Checkout ─────────────────────────────────────────────────
+  try {
+    const res = await fetch('/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productName, category, price, stock, imageUrl, description, supplierName, supplierEmail }),
+    });
 
-    // Save to localStorage so it appears in the public marketplace
-    const products = getStoredProducts();
-    products.push(newProduct);
-    saveStoredProducts(products);
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to create checkout session');
+    }
 
-    // Also push into the in-memory supplier list so the supplier panel updates
-    supplierProductsData.push(newProduct);
+    const { url } = await res.json();
+    // Redirect user to Stripe-hosted Checkout page
+    window.location.href = url;
 
-    // Refresh the global allProducts array so filterProducts() picks it up
-    allProducts = getStoredProducts();
-
-    closeModal('add-product-modal');
-    showToast('"' + newProduct.name + '" listed! $25.00 listing fee processed (demo).', 'success');
-    showSupplierPanel('products');
-    renderProducts(allProducts);   // refresh the public marketplace immediately
-
-    btn.innerHTML = '<i class="fas fa-credit-card mr-2"></i>Pay $25 & List Product (Demo)';
+  } catch (err) {
+    console.error('Stripe checkout error:', err);
+    showToast('Payment error: ' + err.message, 'error');
+    btn.innerHTML = '<i class="fab fa-stripe mr-2"></i>Pay $25.00 CAD via Stripe';
     btn.disabled  = false;
-  }, 2000);
+  }
+}
+
+/** Fallback: add product locally (demo / no-server mode) */
+function _addProductLocally({ productName, category, price, stock, imageUrl, description, supplierName }) {
+  const existingIds = getStoredProducts().map(p => p.id);
+  const newId       = existingIds.length ? Math.max(...existingIds) + 1 : 1;
+
+  const newProduct = {
+    id: newId,
+    name: productName,
+    price: parseFloat(price),
+    category,
+    description,
+    stock: parseInt(stock, 10),
+    sales: 0, revenue: 0, status: 'active',
+    dateAdded: new Date().toISOString().split('T')[0],
+    image: imageUrl,
+    supplier: supplierName,
+  };
+
+  const products = getStoredProducts();
+  products.push(newProduct);
+  saveStoredProducts(products);
+  supplierProductsData.push(newProduct);
+  allProducts = getStoredProducts();
+
+  closeModal('add-product-modal');
+  showToast('"' + newProduct.name + '" listed! $25.00 listing fee processed (demo mode).', 'success');
+  showSupplierPanel('products');
+  renderProducts(allProducts);
 }
 
 function editProduct(id) {
