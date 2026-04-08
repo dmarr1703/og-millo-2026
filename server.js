@@ -313,7 +313,8 @@ function buildSuccessPage(sessionId) {
     ${sessionId ? `<p class="session-id">Session: ${sessionId}</p>` : ''}
 
     <div class="flex gap-3 mt-8" style="justify-content:center;">
-      <a href="/" class="btn"><i class="fas fa-home mr-2"></i>Return to Millo</a>
+      <a href="/#marketplace" class="btn" onclick="if(window.opener){window.opener.postMessage({type:'product-added'},'*');setTimeout(()=>window.close(),500);return false;}"><i class="fas fa-shopping-bag mr-2"></i>View Your Product</a>
+      <a href="/" class="btn-secondary btn-compact"><i class="fas fa-home mr-2"></i>Home</a>
     </div>
   </div>
 
