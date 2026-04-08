@@ -2458,6 +2458,22 @@ document.addEventListener('DOMContentLoaded', () => {
   } else {
     showSection('marketplace');
   }
+
+  // Listen for product-added messages from Stripe success page
+  window.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'product-added') {
+      // Reload products from localStorage
+      allProducts = getStoredProducts();
+      renderProducts(allProducts);
+      // Navigate to marketplace
+      showSection('marketplace');
+      // Scroll to products
+      setTimeout(() => {
+        document.getElementById('products-top')?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+      showToast('Your product is now live on the marketplace! 🎉', 'success');
+    }
+  });
 });
 
 // ===============================================================
@@ -3206,8 +3222,13 @@ function _addProductLocally({ productName, category, price, stock, imageUrl, des
 
   closeModal('add-product-modal');
   showToast('"' + newProduct.name + '" listed! $25.00 listing fee processed (demo mode).', 'success');
-  showSupplierPanel('products');
+  // Redirect to marketplace so users can see and buy the product
+  showSection('marketplace');
   renderProducts(allProducts);
+  // Scroll to products section
+  setTimeout(() => {
+    document.getElementById('products-top')?.scrollIntoView({ behavior: 'smooth' });
+  }, 100);
 }
 
 function editProduct(id) {
