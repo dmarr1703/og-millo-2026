@@ -18,12 +18,59 @@ require('dotenv').config();
 
 const express    = require('express');
 const path       = require('path');
+const crypto     = require('crypto');
 const cors       = require('cors');
 const stripe     = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const bodyParser = require('body-parser');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
+app.set('trust proxy', 1);
+
+// Owner authentication is server-side. Never put owner credentials in browser code.
+const ownerSessions = new Map();
+const ownerLoginAttempts = new Map();
+const OWNER_SESSION_TTL_MS = 12 * 60 * 60 * 1000;
+const OWNER_EMAIL = (process.env.OWNER_EMAIL || 'd.marr@live.ca').trim().toLowerCase();
+
+function constantTimeEqual(candidate, expected) {
+  const a = Buffer.from(String(candidate || ''), 'utf8');
+  const b = Buffer.from(String(expected || ''), 'utf8');
+  if (a.length !== b.length) {
+    const dummy = Buffer.alloc(a.length);
+    crypto.timingSafeEqual(a, dummy);
+    return false;
+  }
+  return crypto.timingSafeEqual(a, b);
+}
+
+function readCookie(req, name) {
+  const header = req.headers.cookie || '';
+  const item = header.split(';').map(part => part.trim()).find(part => part.startsWith(name + '='));
+  return item ? decodeURIComponent(item.slice(name.length + 1)) : '';
+}
+
+function getOwnerSession(req) {
+  const token = readCookie(req, 'millo_owner_session');
+  const session = token && ownerSessions.get(token);
+  if (!session) return null;
+  if (session.expiresAt <= Date.now()) {
+    ownerSessions.delete(token);
+    return null;
+  }
+  return session;
+}
+
+function ownerCookieOptions(req) {
+  return { httpOnly: true, secure: req.secure || req.headers['x-forwarded-proto'] === 'https', sameSite: 'strict', path: '/', maxAge: OWNER_SESSION_TTL_MS };
+}
+
+function requireOwner(req, res, next) {
+  const session = getOwnerSession(req);
+  if (!session) return res.status(401).json({ error: 'Please sign in again.' });
+  req.ownerSession = session;
+  next();
+}
 
 // ─── In-memory store: pendingProducts[sessionId] = productData ───────────────
 // In production this would be a database (e.g. PostgreSQL / Redis).
@@ -40,8 +87,48 @@ app.post(
   handleStripeWebhook
 );
 
-app.use(cors());
-app.use(bodyParser.json());
+app.use(cors({ origin: true, credentials: true }));
+app.use(bodyParser.json({ limit: '1mb' }));
+
+// Owner sign-in: credentials are checked only on the server and sessions stay in HttpOnly cookies.
+app.post('/api/auth/login', (req, res) => {
+  const ip = req.ip || req.socket.remoteAddress || 'unknown';
+  const now = Date.now();
+  const attempt = ownerLoginAttempts.get(ip) || { count: 0, resetAt: now + 15 * 60 * 1000 };
+  if (attempt.resetAt <= now) { attempt.count = 0; attempt.resetAt = now + 15 * 60 * 1000; }
+  if (attempt.count >= 8) return res.status(429).json({ error: 'Too many sign-in attempts. Please wait 15 minutes and try again.' });
+
+  const email = String(req.body?.email || '').trim().toLowerCase();
+  const password = String(req.body?.password || '');
+  const configuredPassword = process.env.OWNER_PASSWORD;
+  if (!configuredPassword) return res.status(503).json({ error: 'Owner sign-in is not configured yet. Add OWNER_PASSWORD to the hosting environment variables.' });
+
+  const valid = constantTimeEqual(email, OWNER_EMAIL) && constantTimeEqual(password, configuredPassword);
+  if (!valid) {
+    attempt.count += 1;
+    ownerLoginAttempts.set(ip, attempt);
+    return res.status(401).json({ error: 'Invalid email or password.' });
+  }
+
+  ownerLoginAttempts.delete(ip);
+  const token = crypto.randomBytes(32).toString('hex');
+  ownerSessions.set(token, { email: OWNER_EMAIL, name: 'D. Marr', type: 'owner', expiresAt: now + OWNER_SESSION_TTL_MS });
+  res.cookie('millo_owner_session', token, ownerCookieOptions(req));
+  return res.json({ authenticated: true, user: { email: OWNER_EMAIL, name: 'D. Marr', type: 'owner', role: 'Administrator' } });
+});
+
+app.get('/api/auth/session', (req, res) => {
+  const session = getOwnerSession(req);
+  if (!session) return res.json({ authenticated: false });
+  return res.json({ authenticated: true, user: { email: session.email, name: session.name, type: 'owner', role: 'Administrator' } });
+});
+
+app.post('/api/auth/logout', (req, res) => {
+  const token = readCookie(req, 'millo_owner_session');
+  if (token) ownerSessions.delete(token);
+  res.clearCookie('millo_owner_session', { httpOnly: true, secure: req.secure || req.headers['x-forwarded-proto'] === 'https', sameSite: 'strict', path: '/' });
+  return res.json({ success: true });
+});
 app.use(express.static(path.join(__dirname)));   // serves index.html + assets
 
 // ─── Config route ─────────────────────────────────────────────────────────────
