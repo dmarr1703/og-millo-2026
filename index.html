@@ -166,8 +166,16 @@
   }
 
   @keyframes modalSlideIn {
-    from { opacity: 0; transform: translateY(-40px) scale(0.95); }
+    from { opacity: 0; transform: translateY(-18px) scale(0.985); }
     to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  #signin-btn { transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease; }
+  #signin-btn:focus-visible { outline: 2px solid var(--primary-gold); outline-offset: 3px; }
+  #signin-btn[aria-busy="true"] { opacity: .88; cursor: progress; }
+  #signin-form .input-field { transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
   }
 
   .form-group { margin-bottom: 20px; }
@@ -2349,13 +2357,13 @@ function initUserDB() {
         name: 'Pending Seller', email: 'pending@demo.com',
         businessName: 'Pending Business Co.', status: 'pending'
       },
-      'owner@millo.com': {
-        password: 'owner123', type: 'owner',
-        name: 'Platform Owner', email: 'owner@millo.com', role: 'Administrator'
-      }
     };
     localStorage.setItem('milloUsers', JSON.stringify(seed));
   }
+  // Remove legacy demo owner credentials from this browser. Owner access is server-authenticated.
+  const users = getUsers();
+  Object.keys(users).forEach(email => { if (users[email]?.type === 'owner') delete users[email]; });
+  saveUsers(users);
 }
 
 function getUsers() {
@@ -2433,30 +2441,44 @@ const supplierProductsData = [
 // ===============================================================
 // INIT
 // ===============================================================
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   initUserDB();
   allProducts = getStoredProducts();
   renderProducts(allProducts);
   updateOwnerPendingSellersCount();
 
-  const saved = localStorage.getItem('milloSession');
-  if (saved) {
-    try {
-      const { email } = JSON.parse(saved);
-      const freshUser = getUser(email);
-      if (freshUser) {
-        currentUser = { ...freshUser };
-        afterLogin(false);
-      } else {
+  // Restore an owner session from the HttpOnly server cookie, never localStorage.
+  try {
+    const response = await fetch('/api/auth/session', { credentials: 'same-origin' });
+    const data = await response.json();
+    if (response.ok && data.authenticated && data.user) {
+      currentUser = { ...data.user };
+      afterLogin(false);
+    }
+  } catch (error) {
+    console.warn('Could not restore owner session:', error);
+  }
+
+  if (!currentUser) {
+    const saved = localStorage.getItem('milloSession');
+    if (saved) {
+      try {
+        const { email } = JSON.parse(saved);
+        const freshUser = getUser(email);
+        if (freshUser && freshUser.type !== 'owner') {
+          currentUser = { ...freshUser };
+          afterLogin(false);
+        } else {
+          localStorage.removeItem('milloSession');
+          showSection('marketplace');
+        }
+      } catch(e) {
         localStorage.removeItem('milloSession');
         showSection('marketplace');
       }
-    } catch(e) {
-      localStorage.removeItem('milloSession');
+    } else {
       showSection('marketplace');
     }
-  } else {
-    showSection('marketplace');
   }
 
   // Listen for product-added messages from Stripe success page
@@ -2521,41 +2543,63 @@ function switchAuthTab(tab) {
   selectUserType(selectedUserType);
 }
 
-function handleSignIn(e) {
+async function handleSignIn(e) {
   e.preventDefault();
-  const email    = document.getElementById('si-email').value.trim().toLowerCase();
+  const email = document.getElementById('si-email').value.trim().toLowerCase();
   const password = document.getElementById('si-password').value;
   const remember = document.getElementById('si-remember').checked;
-  const btn      = document.getElementById('signin-btn');
+  const btn = document.getElementById('signin-btn');
+  if (btn.disabled) return;
 
-  btn.innerHTML = '<div class="loading-spinner"></div>Signing in...';
-  btn.disabled  = true;
+  clearModalAlert();
+  btn.innerHTML = '<div class="loading-spinner" aria-hidden="true"></div><span>Signing in…</span>';
+  btn.disabled = true;
+  btn.setAttribute('aria-busy', 'true');
 
-  setTimeout(() => {
-    const user = getUser(email);
-
-    if (!user) {
-      showModalAlert('No account found with that email. Try a demo account below.', 'error');
-    } else if (user.password !== password) {
-      showModalAlert('Incorrect password. Please try again.', 'error');
-    } else if (user.type !== selectedUserType) {
-      showModalAlert('This email is registered as a <strong>' + user.type + '</strong>. Please select the correct account type.', 'warning');
-    } else {
-      currentUser = { ...user };
-      if (remember) {
-        localStorage.setItem('milloSession', JSON.stringify({ email: currentUser.email }));
+  try {
+    if (selectedUserType === 'owner') {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.authenticated || !data.user) {
+        throw new Error(data.error || 'Sign-in failed. Please try again.');
       }
+      currentUser = { ...data.user };
+      localStorage.removeItem('milloSession');
       closeModal('login-modal');
       afterLogin(true);
+      return;
     }
 
+    const user = getUser(email);
+    if (!user) throw new Error('No account found with that email. Try a demo account below.');
+    if (user.password !== password) throw new Error('Incorrect password. Please try again.');
+    if (user.type !== selectedUserType) throw new Error('This email is registered as a ' + user.type + '. Please select the correct account type.');
+
+    currentUser = { ...user };
+    if (remember) localStorage.setItem('milloSession', JSON.stringify({ email: currentUser.email }));
+    else localStorage.removeItem('milloSession');
+    closeModal('login-modal');
+    afterLogin(true);
+  } catch (error) {
+    showModalAlert(error.message || 'Unable to sign in. Please try again.', 'error');
+  } finally {
     btn.innerHTML = '<i class="fas fa-sign-in-alt mr-2"></i>Sign In';
-    btn.disabled  = false;
-  }, 1000);
+    btn.disabled = false;
+    btn.removeAttribute('aria-busy');
+  }
 }
 
 function handleSignUp(e) {
   e.preventDefault();
+  if (selectedUserType === 'owner') {
+    showModalAlert('Owner accounts cannot be created from the public sign-up form.', 'error');
+    return;
+  }
   const name    = document.getElementById('su-name').value.trim();
   const email   = document.getElementById('su-email').value.trim().toLowerCase();
   const password= document.getElementById('su-password').value;
@@ -2622,7 +2666,7 @@ function showForgotPassword(e) {
 // AFTER LOGIN — routes user to correct section based on type/status
 // ===============================================================
 function afterLogin(isNew) {
-  if (currentUser && currentUser.email) {
+  if (currentUser && currentUser.email && currentUser.type !== 'owner') {
     const fresh = getUser(currentUser.email);
     if (fresh) currentUser = { ...fresh };
   }
@@ -2718,7 +2762,11 @@ function checkApprovalStatus() {
   }
 }
 
-function logout() {
+async function logout() {
+  if (currentUser?.type === 'owner') {
+    try { await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' }); }
+    catch (error) { console.warn('Server logout request failed:', error); }
+  }
   currentUser = null;
   localStorage.removeItem('milloSession');
   document.getElementById('not-logged-in').classList.remove('hidden');
