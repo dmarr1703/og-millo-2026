@@ -20,7 +20,8 @@ const express    = require('express');
 const path       = require('path');
 const crypto     = require('crypto');
 const cors       = require('cors');
-const stripe     = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+const stripe = stripeSecretKey ? require('stripe')(stripeSecretKey) : null;
 const bodyParser = require('body-parser');
 
 const app  = express();
@@ -138,6 +139,7 @@ app.get('/config', (req, res) => {
 
 // ─── Create Checkout Session ──────────────────────────────────────────────────
 app.post('/create-checkout-session', async (req, res) => {
+  if (!stripe) return res.status(503).json({ error: 'Payments are not configured yet. Please contact Millo support.' });
   const {
     productName,
     category,
@@ -222,6 +224,7 @@ app.post('/create-checkout-session', async (req, res) => {
 
 // ─── Stripe Webhook Handler ───────────────────────────────────────────────────
 function handleStripeWebhook(req, res) {
+  if (!stripe) return res.status(503).send('Payments are not configured.');
   const sig     = req.headers['stripe-signature'];
   const secret  = process.env.STRIPE_WEBHOOK_SECRET;
 
@@ -316,7 +319,8 @@ app.get('/payment-status/:sessionId', (req, res) => {
     return res.json({ status: pendingProducts[sessionId].status || 'pending_payment' });
   }
 
-  // Not found locally — query Stripe directly
+  // Not found locally — query Stripe only when payments are configured
+  if (!stripe) return res.json({ status: 'unknown' });
   stripe.checkout.sessions.retrieve(sessionId)
     .then(session => {
       if (session.payment_status === 'paid') {
