@@ -115,7 +115,7 @@ create table public.products (
 
 create or replace function public.prevent_supplier_product_approval_bypass()
 returns trigger language plpgsql security definer set search_path = ''
-as $
+as $$
 begin
   if coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') <> 'admin'
      and coalesce(auth.role(), '') <> 'service_role' then
@@ -128,7 +128,7 @@ begin
   end if;
   return new;
 end;
-$;
+$$;
 
 create trigger prevent_supplier_product_approval_bypass
 before update on public.products
@@ -320,7 +320,7 @@ create policy "Profiles are visible to their owner or admins" on public.profiles
 for select to authenticated using (id = (select auth.uid()) or (select auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
 create or replace function public.prevent_profile_role_escalation()
 returns trigger language plpgsql security definer set search_path = ''
-as $
+as $$
 begin
   if new.role is distinct from old.role
      and coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') <> 'admin'
@@ -329,7 +329,7 @@ begin
   end if;
   return new;
 end;
-$;
+$$;
 
 create trigger prevent_profile_role_escalation
 before update of role on public.profiles
