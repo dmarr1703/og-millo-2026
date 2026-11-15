@@ -117,7 +117,8 @@ create or replace function public.prevent_supplier_product_approval_bypass()
 returns trigger language plpgsql security definer set search_path = ''
 as $
 begin
-  if coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') <> 'admin' then
+  if coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') <> 'admin'
+     and coalesce(auth.role(), '') <> 'service_role' then
     if new.status is distinct from old.status
        or new.approved_at is distinct from old.approved_at
        or new.listing_fee_status is distinct from old.listing_fee_status
@@ -322,7 +323,8 @@ returns trigger language plpgsql security definer set search_path = ''
 as $
 begin
   if new.role is distinct from old.role
-     and coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') <> 'admin' then
+     and coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') <> 'admin'
+     and coalesce(auth.role(), '') <> 'service_role' then
     raise exception 'Profile role changes require an administrator';
   end if;
   return new;
