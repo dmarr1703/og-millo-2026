@@ -386,7 +386,7 @@ for all to authenticated using (user_id = (select auth.uid())) with check (user_
 create policy "Customers and suppliers can view relevant orders" on public.orders
 for select to authenticated using (
   customer_id = (select auth.uid())
-  or exists (select 1 from public.order_items oi join public.suppliers s on s.id = oi.supplier_id where oi.order_id = id and s.user_id = (select auth.uid()))
+  or exists (select 1 from public.order_items oi join public.suppliers s on s.id = oi.supplier_id where oi.order_id = orders.id and s.user_id = (select auth.uid()))
   or (select auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
 );
 create policy "Order items visible to customer, supplier, or admin" on public.order_items
