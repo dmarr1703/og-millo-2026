@@ -297,8 +297,25 @@ alter table public.audit_logs enable row level security;
 
 create policy "Profiles are visible to their owner or admins" on public.profiles
 for select to authenticated using (id = (select auth.uid()) or (select auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+create or replace function public.prevent_profile_role_escalation()
+returns trigger language plpgsql security definer set search_path = ''
+as $
+begin
+  if new.role is distinct from old.role
+     and coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') <> 'admin' then
+    raise exception 'Profile role changes require an administrator';
+  end if;
+  return new;
+end;
+$;
+
+create trigger prevent_profile_role_escalation
+before update of role on public.profiles
+for each row execute procedure public.prevent_profile_role_escalation();
+
 create policy "Users can update their own basic profile" on public.profiles
-for update to authenticated using (id = (select auth.uid())) with check (id = (select auth.uid()) and role = (select role from public.profiles p where p.id = (select auth.uid())));
+for update to authenticated using (id = (select auth.uid()))
+with check (id = (select auth.uid()));
 
 create policy "Users can submit their own supplier application" on public.supplier_applications
 for insert to authenticated with check (user_id = (select auth.uid()) and status = 'pending');
