@@ -113,6 +113,26 @@ create table public.products (
   unique (supplier_id, sku)
 );
 
+create or replace function public.prevent_supplier_product_approval_bypass()
+returns trigger language plpgsql security definer set search_path = ''
+as $
+begin
+  if coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') <> 'admin' then
+    if new.status is distinct from old.status
+       or new.approved_at is distinct from old.approved_at
+       or new.listing_fee_status is distinct from old.listing_fee_status
+       or new.listing_fee_cents is distinct from old.listing_fee_cents then
+      raise exception 'Product approval and listing payment state are controlled by Millo administrators and payment webhooks';
+    end if;
+  end if;
+  return new;
+end;
+$;
+
+create trigger prevent_supplier_product_approval_bypass
+before update on public.products
+for each row execute procedure public.prevent_supplier_product_approval_bypass();
+
 create table public.product_images (
   id uuid primary key default gen_random_uuid(),
   product_id uuid not null references public.products(id) on delete cascade,
