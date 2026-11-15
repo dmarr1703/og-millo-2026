@@ -1,14 +1,19 @@
 {
   "name": "millo-marketplace",
   "version": "1.0.0",
-  "description": "Millo Marketplace — Stripe Checkout integration for $25 CAD product listing fee",
+  "description": "Millo Canadian multi-supplier marketplace — CAD, $35 listings, 10% commission",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
     "test": "echo \"No tests specified\" && exit 0"
   },
-  "keywords": ["stripe", "checkout", "marketplace", "listings"],
+  "keywords": [
+    "stripe",
+    "checkout",
+    "marketplace",
+    "listings"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
